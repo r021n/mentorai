@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tambah Topik</title>
+  </head>
+  <body>
+    <h1>Tambah Topik</h1>
+    <% if(error) { %>
+    <p style="color: red"><%= error %></p>
+    <% } %>
+    <form action="/topics/new" method="POST">
+      <label>Nama Topik:</label><br />
+      <input type="text" name="name" required /><br /><br />
+      <button type="submit">Simpan</button>
+    </form>
+    <br />
+    <a href="/topics">Kembali ke daftar topik</a>
+  </body>
+</html>

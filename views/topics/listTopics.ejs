@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daftar Topik</title>
+  </head>
+  <body>
+    <h1>Daftar Topik</h1>
+    <a href="/topics/new">Tambah Topik</a>
+    <table border="1" cellpadding="5" cellspacing="0">
+      <tr>
+        <th>ID</th>
+        <th>Nama Topik</th>
+        <th>Aksi</th>
+      </tr>
+      <% topics.forEach(topic => { %>
+      <tr>
+        <td><%= topic.id %></td>
+        <td><%= topic.name %></td>
+        <td>
+          <a href="/topics/edit/<%= topic.id %>">edit</a>
+          <form
+            action="/topics/delete/<%= topic.id%>"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              type="submit"
+              onclick="return confirm('Apakah anda yakin ingin menghapus topik ini?');"
+            >
+              Hapus
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% }); %>
+    </table>
+    <br />
+    <a href="/dashboard">kembali ke dashboard</a>
+  </body>
+</html>

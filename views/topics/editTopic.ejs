@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Topik</title>
+  </head>
+  <body>
+    <h1>Edit Topik</h1>
+    <% if(error) { %>
+    <p style="color: red"><%= error %></p>
+    <% } %>
+    <form action="/topics/edit/<%= topic.id %>" method="POST">
+      <label>Nama Topik:</label><br />
+      <input
+        type="text"
+        name="name"
+        value="<%= topic.name %>"
+        required
+      /><br /><br />
+      <button type="submit">Update</button>
+    </form>
+    <br />
+    <a href="/topics">kembali ke daftar topik</a>
+  </body>
+</html>
