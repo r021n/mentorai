@@ -1,3 +1,5 @@
+const authModel = require("../models/authModel");
+
 exports.getLogin = (req, res) => {
   res.render("login", { error: null });
 };
@@ -5,18 +7,18 @@ exports.getLogin = (req, res) => {
 exports.postLogin = (req, res) => {
   const { username, password } = req.body;
   const db = req.db;
-  const sql = "SELECT * FROM users WHERE username = ?";
-
-  db.get(sql, [username], (err, user) => {
+  authModel.getUserByUsername(db, username, (err, user) => {
     if (err) {
       return res.render("login", {
-        error: "terjadi kesalahan, silahkan coba lagi",
+        error: "Terjadi kesalahan, silahkan coba lagi",
       });
     }
 
-    // validasi
-    if (!user || user.password !== password) {
-      return res.render("login", { error: "username atau password salah" });
+    // validasi user
+    if (!user || user.password != password) {
+      return res.render("login", {
+        error: "Username atau password salah",
+      });
     }
 
     // simpan data user ke session
@@ -51,14 +53,13 @@ exports.postRegister = (req, res) => {
   const db = req.db;
 
   //   sisipkan user baru dengan role "siswa"
-  const sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
-  db.run(sql, [username, password, "siswa"], (err) => {
+  authModel.insertUser(db, username, password, "siswa", (err) => {
     if (err) {
       if (err.message.includes("UNIQUE")) {
         return res.render("register", { error: "username sudah digunakan" });
       }
       return res.render("register", {
-        error: "terjadi kesalahan, silahkan coba lagi",
+        error: "Terjadi kesalahan, silahkan coba lagi",
       });
     }
 

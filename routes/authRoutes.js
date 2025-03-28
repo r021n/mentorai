@@ -2,13 +2,22 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 
-router.get("/login", authController.getLogin);
-router.post("/login", authController.postLogin);
+// middleware pengecekan autentikasi
+function redirectIfAuthenticated(req, res, next) {
+  if (req.session.user) {
+    return res.redirect("/dashboard");
+  }
 
-router.get("/register", authController.getRegister);
-router.post("/register", authController.postRegister);
+  next();
+}
 
-router.get("/logout", authController.logout);
+router.get("/login", redirectIfAuthenticated, authController.getLogin);
+router.post("/login", redirectIfAuthenticated, authController.postLogin);
+
+router.get("/register", redirectIfAuthenticated, authController.getRegister);
+router.post("/register", redirectIfAuthenticated, authController.postRegister);
+
+router.get("/logout", redirectIfAuthenticated, authController.logout);
 
 // alihkan route root ke halaman login
 
