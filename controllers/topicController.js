@@ -1,6 +1,8 @@
+const topicModel = require("../models/topicModel");
+
 exports.getTopics = (req, res) => {
   const db = req.db;
-  db.all("SELECT * FROM topics", [], (err, rows) => {
+  topicModel.getTopics(db, (err, rows) => {
     if (err) {
       return res.send("Terjadi error saat mengambil data topik");
     }
@@ -20,12 +22,13 @@ exports.postAddTopic = (req, res) => {
   }
 
   const db = req.db;
-  db.run("INSERT INTO topics (name) VALUES (?)", [name], (err) => {
+  topicModel.insertTopic(db, name, (err) => {
     if (err) {
       return res.render("topics/addTopic", {
         error: "Terjadi kesalahan saat menambahkan topik",
       });
     }
+
     res.redirect("/topics");
   });
 };
@@ -33,7 +36,7 @@ exports.postAddTopic = (req, res) => {
 exports.getEditTopic = (req, res) => {
   const id = req.params.id;
   const db = req.db;
-  db.get("SELECT * FROM topics WHERE id = ?", [id], (err, topic) => {
+  topicModel.getTopicById(db, id, (err, topic) => {
     if (err || !topic) {
       return res.redirect("/topics");
     }
@@ -53,7 +56,7 @@ exports.postEditTopic = (req, res) => {
   }
 
   const db = req.db;
-  db.run("UPDATE topics SET name = ? WHERE id = ?", [name, id], (err) => {
+  topicModel.updateTopic(db, id, name, (err) => {
     if (err) {
       return res.render("topics/editTopic", {
         error: "Terjadi error saat memperbarui topic",
@@ -67,7 +70,7 @@ exports.postEditTopic = (req, res) => {
 exports.postDeleteTopic = (req, res) => {
   const id = req.params.id;
   const db = req.db;
-  db.run("DELETE FROM topics WHERE id = ?", [id], (err) => {
+  topicModel.deleteTopic(db, id, (err) => {
     if (err) {
       return res.send("Terjadi error saat menghapus topik");
     }
