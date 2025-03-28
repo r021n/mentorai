@@ -19,6 +19,7 @@
         <td><%= topic.id %></td>
         <td><%= topic.name %></td>
         <td>
+          <a href="/topics/list/<%= topic.id %>">Daftar soal</a>
           <a href="/topics/edit/<%= topic.id %>">edit</a>
           <form
             action="/topics/delete/<%= topic.id%>"

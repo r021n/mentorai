@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const topicController = require("../controllers/topicController");
+const questionRoutes = require("./questionRoutes");
 
 // middleware untuk mengizinkan hanya admin yang boleh akses
 router.use((req, res, next) => {
@@ -28,4 +29,6 @@ router.post("/edit/:id", topicController.postEditTopic);
 // hapus topik
 router.post("/delete/:id", topicController.postDeleteTopic);
 
+// daftar questions
+router.use("/list/:id_topic", questionRoutes);
 module.exports = router;

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tambah soal topik <%= topicId %></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+    />
+    <style>
+      #editor-container {
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tambah soal untuk topik <%= topicId %></h1>
+    <form
+      action="/topics/list/<%= topicId %>/create"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <div>
+        <label for="question">Soal: </label>
+        <div id="editor-container"></div>
+        <input type="hidden" name="question" id="question" />
+      </div>
+      <div>
+        <label>Upload Gambar</label>
+        <input type="file" name="image" />
+      </div>
+      <div>
+        <label>Deskripsi Gambar:</label>
+        <textarea name="imageDescription"></textarea>
+      </div>
+      <button type="submit">Simpan Soal</button>
+    </form>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+      const quill = new Quill("#editor-container", {
+        theme: "snow",
+      });
+
+      //   sebelum form submit, ambil data dari quill dan simpan ke input hidden
+      document.querySelector("form").addEventListener("submit", () => {
+        document.querySelector("#question").value = quill.root.innerHTML;
+      });
+    </script>
+  </body>
+</html>

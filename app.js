@@ -65,6 +65,15 @@ db.serialize(() => {
     name TEXT NOT NULL
     )`);
 
+  db.run(`CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    pathImage VARCHAR(255),
+    imageDescription TEXT,
+    topicId INTEGER,
+    FOREIGN KEY (topicId) REFERENCES topics(id)
+    )`);
+
   // cek dan sisipkan akun admin jika belum ada
   db.get("SELECT * FROM users WHERE username = ?", ["admin"], (err, row) => {
     if (err) {
@@ -72,7 +81,7 @@ db.serialize(() => {
     } else if (!row) {
       db.run(
         "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-        ["admin", "adminMentorAI123", "admin"],
+        ["admin", "123", "admin"],
         (err) => {
           if (err) {
             console.error(err.message);
