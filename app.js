@@ -45,11 +45,15 @@ app.use((req, res, next) => {
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const topicRoutes = require("./routes/topicRoutes");
+const topicListRoutes = require("./routes/topicListRoutes");
+const exerciseRoutes = require("./routes/exerciseRoutes");
 
 // menggunakan routes
 app.use("/", authRoutes);
 app.use("/", dashboardRoutes);
 app.use("/topics", topicRoutes);
+app.use("/topicList", topicListRoutes);
+app.use("/exercise", exerciseRoutes);
 
 // buat tabel user jika belum ada dan seed akun admin
 db.serialize(() => {
