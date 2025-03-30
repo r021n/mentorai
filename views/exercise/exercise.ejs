@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise</title>
+  </head>
+  <body>
+    <h1>Exercise</h1>
+    <!-- Container untuk menampilkan soal -->
+    <div id="question-container">
+      <div id="question-text"></div>
+      <div id="question-image"></div>
+    </div>
+
+    <!-- Form untuk memasukkan jawaban -->
+    <form id="answerForm">
+      <textarea
+        name="answer"
+        id="answerText"
+        rows="5"
+        cols="60"
+        placeholder="Tulis jawabanmu disini"
+      ></textarea>
+      <input type="hidden" name="questionId" id="questionId" />
+      <br />
+      <button type="submit">Kirim jawaban</button>
+    </form>
+
+    <!-- Tempat menampilkan feedback jika ada -->
+    <div id="feedbackDiv" style="margin-top: 20px; color: green"></div>
+
+    <!-- tombol navigasi prev/next/end -->
+    <div style="margin-top: 20px">
+      <button id="prevBtn">Prev</button>
+      <button id="nextBtn">Next</button>
+    </div>
+    <br />
+
+    <a href="/dashboard">Kembali ke dashboard</a>
+    <script>
+                const questions = <%- questions %>;
+                const existingAnswers = <%- answers %>;
+
+              //   Ubah array menjadi mapping berdasarkan questionId
+              const answersMap = {};
+              existingAnswers.forEach((item) => {
+                answersMap[item.questionId] = item;
+              })
+
+              let currentIndex = 0;
+
+              function displayQuestion(index) {
+                const question = questions[index];
+                // tampilkan konten soal (dengan render HTML)
+
+                document.getElementById("question-text").innerHTML = question.question;
+
+                // tampilkan image jika ada imagePath
+                if(question.pathImage) {
+                    document.getElementById("question-image").innerHTML =
+                    `<img src="${question.pathImage}" alt="${question.imageDescription || ''}" style="max-width: 300px;">`;
+                } else {
+                    document.getElementById("question-image").innerHTML = ""
+                }
+
+                // set hidden field untuk questionId
+                document.getElementById("questionId").value = question.id;
+
+                // pre-fill textarea jika sudah ada jawaban di answersMap
+                if(answersMap[question.id]) {
+                    document.getElementById("answerText").value = answersMap[question.id].answer || "";
+                    document.getElementById("feedbackDiv").innerText = answersMap[question.id].feedback || "";
+                } else {
+                    document.getElementById("answerText").value = "";
+                    document.getElementById("feedbackDiv").innerText = "";
+                }
+
+                // tampilkan atau sembunyikan tombol prev serta ubah tombol next jika berada di indeks terakhir
+                document.getElementById("prevBtn").style.display = (index === 0) ? "none" : "inline-block";
+                if(index === questions.length - 1) {
+                    document.getElementById("nextBtn").innerText = "End";
+                } else {
+                    document.getElementById("nextBtn").innerText = "Next";
+                }
+              }
+
+            //   inisialisasi tampilan soal pertama
+            displayQuestion(currentIndex);
+
+          //   submit jawaban secara AJAX
+          document.getElementById("answerForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const answer = document.getElementById("answerText").value;
+            const questionId = document.getElementById("questionId").value;
+
+            // menggunakan fetch untuk submit data ke endpoint submitAnswer
+            fetch(window.location.pathname + "/submitAnswer", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json",
+                },
+                body: JSON.stringify({questionId: questionId, answer: answer})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // update mapping jawaban untuk soal saat ini
+                    answersMap[questionId] = {answer: answer, feedback: data.feedback};
+                    document.getElementById("feedbackDiv").innerText = data.feedback;
+                } else {
+                    alert(data.message || "Gagal menyimpan data");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Terjadi kesalahan saat mengirim jawaban");
+            });
+          });
+
+        //   event listener untuk tombol prev
+        document.getElementById("prevBtn").addEventListener('click', () => {
+          if(currentIndex > 0) {
+              currentIndex--;
+              displayQuestion(currentIndex);
+          }
+        })
+
+      //   event listener untuk tombol next atau end
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        if(currentIndex < questions.length - 1) {
+              currentIndex++;
+              displayQuestion(currentIndex)
+        } else {
+            // jika index terakhir maka akan diarahkan ke halaman /endExercise
+            window.location.href = "/endExercise";
+        }
+      })
+    </script>
+  </body>
+</html>

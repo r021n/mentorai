@@ -45,18 +45,22 @@ app.use((req, res, next) => {
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const topicRoutes = require("./routes/topicRoutes");
-const topicListRoutes = require("./routes/topicListRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 
 // menggunakan routes
 app.use("/", authRoutes);
 app.use("/", dashboardRoutes);
 app.use("/topics", topicRoutes);
-app.use("/topicList", topicListRoutes);
 app.use("/exercise", exerciseRoutes);
+
+// endpoint untuk halaman akhir exercise
+app.get("/endExercise", (req, res) => {
+  res.render("endExercise");
+});
 
 // buat tabel user jika belum ada dan seed akun admin
 db.serialize(() => {
+  // table users
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
@@ -64,17 +68,33 @@ db.serialize(() => {
     role TEXT NOT NULL
     )`);
 
+  // table topics
   db.run(`CREATE TABLE IF NOT EXISTS topics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
     )`);
 
+  // table questions
   db.run(`CREATE TABLE IF NOT EXISTS questions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     question TEXT NOT NULL,
     pathImage VARCHAR(255),
     imageDescription TEXT,
     topicId INTEGER,
+    FOREIGN KEY (topicId) REFERENCES topics(id)
+    )`);
+
+  // table answers
+  db.run(`CREATE TABLE IF NOT EXISTS answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    answer TEXT,
+    feedback TEXT,
+    score INTEGER,
+    userId INTEGER,
+    questionId INTEGER,
+    topicId INTEGER,
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (questionId) REFERENCES questions(id),
     FOREIGN KEY (topicId) REFERENCES topics(id)
     )`);
 
