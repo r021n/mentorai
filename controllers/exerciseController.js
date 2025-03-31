@@ -1,3 +1,39 @@
+const { GoogleGenAI } = require("@google/genai");
+require("dotenv").config();
+
+// =========================================================
+// fungsi untuk generate feedback
+async function generateFeedback(inputText) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const genAI = new GoogleGenAI({ apiKey: apiKey });
+  const response = await genAI.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: inputText,
+  });
+  return response.text;
+}
+
+// fungsi untuk mendapatkan pertanyaan dari database
+function getQuestionById(db, questionId) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      "SELECT question FROM questions WHERE id = ?",
+      [questionId],
+      (err, row) => {
+        if (err) {
+          reject(err);
+        } else if (!row) {
+          reject(new Error("Pertanyaan tidak ditemukan"));
+        } else {
+          resolve(row.question);
+        }
+      }
+    );
+  });
+}
+
+// =========================================================
+
 exports.getExcerciseTopics = (req, res) => {
   const db = req.db;
   db.all("SELECT * FROM topics", (err, topics) => {
@@ -43,14 +79,18 @@ exports.getExercisePage = (req, res) => {
   );
 };
 
-exports.postSubmitAnswer = (req, res) => {
+exports.postSubmitAnswer = async (req, res) => {
   const topicId = req.params.topicId;
   const userId = req.session.user.id;
   const { questionId, answer } = req.body;
   //   generate dummy feedback dan score
-  const feedback = `Jawaban id ${questionId} sudah direkam, terimakasih`;
   const score = 100;
   const db = req.db;
+
+  // get question from database and make the prompt
+  const question = await getQuestionById(db, questionId);
+  const prompt = `Tolong berikan feedback edukatif singkat (maksimal 3 kalimat) untuk pertanyaan berikut "${question}" terhadap jawaban berikut "${answer}"`;
+  let feedback = await generateFeedback(prompt);
 
   //   cek apakah sudah ada record answer
   db.get(
