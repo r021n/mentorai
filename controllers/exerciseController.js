@@ -84,7 +84,7 @@ exports.postSubmitAnswer = async (req, res) => {
   const userId = req.session.user.id;
   const { questionId, answer } = req.body;
   //   generate dummy feedback dan score
-  const score = 100;
+  const score = 3;
   const db = req.db;
 
   // get question from database and make the prompt

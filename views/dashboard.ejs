@@ -11,6 +11,14 @@
     <p>
       Selamat datang, <%= user.username %>! Anda login sebagai <%= user.role%>.
     </p>
+    <ul>
+      <li>
+        <a href="/exercise">Latihan</a>
+      </li>
+      <% if (user.role === 'admin') { %>
+      <li><a href="/topics">Edit topic</a></li>
+      <% } %>
+    </ul>
     <a href="/logout">Logout</a>
     <% } else {%>
     <p>Kamu belum login, silahkan <a href="/login">Login</a></p>

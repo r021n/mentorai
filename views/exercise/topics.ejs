@@ -9,7 +9,10 @@
     <h1>Pilih topik untuk latihan</h1>
     <ul>
       <% topics.forEach(topic => { %>
-      <li><a href="/exercise/<%= topic.id %>"><%= topic.name %></a></li>
+      <li>
+        <a href="/exercise/<%= topic.id %>"><%= topic.name %></a>
+        <a href="/myAnswers/<%= topic.id %>">Lihat jawabanku</a>
+      </li>
       <% }); %>
     </ul>
     <a href="/dashboard">Kembali ke dashboard</a>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jawabanku</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Daftar Jawabanku</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Nomor</th>
+          <th>Soal</th>
+          <th>Jawaban</th>
+          <th>Feedback</th>
+          <th>Skor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (answers.length === 0) { %>
+        <tr>
+          <td colspan="4">Belum ada jawaban</td>
+        </tr>
+        <% } else { %> <% answers.forEach((item, index) => { %>
+        <tr>
+          <td><%= index + 1%></td>
+          <td><%- item.questionText %></td>
+          <td><%= item.answer %></td>
+          <td><%= item.feedback %></td>
+          <td><%= item.score %></td></td>
+        </tr>
+        <% }); %>
+        <% } %>
+      </tbody>
+    </table>
+    <div style="margin-top: 20px; font-weight: bold;">Total skor: <%= (totalScore / (answers.length * 3)) * 100 %></div>
+    <br>
+
+    <a href="/dashboard">Kembali ke dashboard</a>
+  </body>
+</html>

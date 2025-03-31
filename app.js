@@ -46,12 +46,14 @@ const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const topicRoutes = require("./routes/topicRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
+const myAnswersRoutes = require("./routes/myAnswersRoutes");
 
 // menggunakan routes
 app.use("/", authRoutes);
 app.use("/", dashboardRoutes);
 app.use("/topics", topicRoutes);
 app.use("/exercise", exerciseRoutes);
+app.use("/myAnswers", myAnswersRoutes);
 
 // endpoint untuk halaman akhir exercise
 app.get("/endExercise", (req, res) => {
