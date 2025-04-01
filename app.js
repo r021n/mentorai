@@ -48,6 +48,7 @@ const topicRoutes = require("./routes/topicRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const myAnswersRoutes = require("./routes/myAnswersRoutes");
 const studentsAnswersRoutes = require("./routes/studentsAnswersRoutes");
+const adminDownloadRoutes = require("./routes/adminDownloadRoutes");
 
 // menggunakan routes
 app.use("/", authRoutes);
@@ -56,6 +57,7 @@ app.use("/topics", topicRoutes);
 app.use("/exercise", exerciseRoutes);
 app.use("/myAnswers", myAnswersRoutes);
 app.use("/studentsAnswers", studentsAnswersRoutes);
+app.use("/admin/download", adminDownloadRoutes);
 
 // endpoint untuk halaman akhir exercise
 app.get("/endExercise", (req, res) => {

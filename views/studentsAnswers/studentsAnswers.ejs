@@ -57,11 +57,15 @@
           <td>-</td>
           <td>-</td>
           <% } %> <% }); %>
-          <td><%= student.totalScore %></td>
+          <td>
+            <%= Math.round((student.totalScore / (questions.length * 3)) * 100)
+            %>
+          </td>
         </tr>
         <% }); %> <% } %>
       </tbody>
     </table>
+    <a href="/admin/download/<%= topicId %>">Unduh Jawaban Siswa</a>
 
     <br />
     <a href="/dashboard">Kembali ke dashboard</a>

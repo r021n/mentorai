@@ -52,7 +52,7 @@
         <% } %>
       </tbody>
     </table>
-    <div style="margin-top: 20px; font-weight: bold;">Total skor: <%= (totalScore / (answers.length * 3)) * 100 %></div>
+    <div style="margin-top: 20px; font-weight: bold;">Total skor: <%= Math.round((totalScore / (answers.length * 3)) * 100) %></div>
     <br>
 
     <a href="/dashboard">Kembali ke dashboard</a>
