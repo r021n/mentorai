@@ -35,13 +35,15 @@ function getQuestionById(db, questionId) {
 // =========================================================
 
 exports.getExcerciseTopics = (req, res) => {
+  const user = req.session.user;
   const db = req.db;
+
   db.all("SELECT * FROM topics", (err, topics) => {
     if (err) {
       return res.send("Terjadi kesalahan saat mendapatkan topik");
     }
 
-    res.render("exercise/topics", { topics });
+    res.render("exercise/topics", { user, topics });
   });
 };
 
