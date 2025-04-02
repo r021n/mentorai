@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manajemen Users</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      /* modal style */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 400px;
+      }
+
+      .modal-header {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .modal-actions {
+        margin-top: 20px;
+        text-align: right;
+      }
+
+      .modal-actions button {
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Manajemen Users</h1>
+
+    <!-- search input -->
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Cari berdasarkan username...."
+    />
+    <br /><br />
+
+    <!-- table data users -->
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAll" /></th>
+          <th>No</th>
+          <th>Username</th>
+          <th>Password</th>
+          <th>Role</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach((user, index) => { %>
+        <tr data-id="<%= user.id%>">
+          <td>
+            <input
+              type="checkbox"
+              class="rowCheckbox"
+              data-id="<%= user.id %>"
+            />
+          </td>
+          <td><%= index + 1 %></td>
+          <td class="username"><%= user.username%></td>
+          <td class="password"><%= user.password%></td>
+          <td class="role"><%= user.role%></td>
+          <td><button class="editBtn" data-id="<%= user.id%>">Edit</button></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <!-- tombol untuk menghapus data yang dipilih -->
+    <br />
+    <button id="deleteSelectedBtn">Delete Selected</button>
+
+    <!-- modal edit user -->
+    <div class="modal" id="editModal">
+      <div class="modal-content">
+        <div class="modal-header">Edit User</div>
+        <div class="modal-body">
+          <input type="hidden" id="editUserId" />
+          <div>
+            <label>Username:</label>
+            <input type="text" id="editUsername" />
+          </div>
+          <div>
+            <label>Password:</label>
+            <input type="text" id="editPassword" />
+          </div>
+          <div>
+            <label>Role:</label>
+            <input type="text" id="editRole" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="editCancelBtn">Batal</button>
+          <button id="editConfirmBtn">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- modal konfirmasi hapus -->
+    <div class="modal" id="deleteModal">
+      <div class="modal-content">
+        <div class="modal-header">Konfirmasi Hapus</div>
+        <div class="modal-body">
+          Apakah anda ingin menghapus data yang dipilih?
+        </div>
+        <div class="modal-actions">
+          <button id="deleteCancelBtn">Batal</button>
+          <button id="deleteConfirmBtn">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --------------------------------------
+      //FUNGSI SEARCH DENGAN DEBOUNCE 1 DETIK
+      let debounceTimer;
+      const searchInput = document.getElementById("searchInput");
+      const usersTableBody = document.querySelector("#usersTable tbody");
+
+      searchInput.addEventListener("keyup", function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          const query = searchInput.value;
+          fetch("/database/users/search?q=" + encodeURIComponent(query))
+            .then((response) => response.json())
+            .then((data) => updateTable(data))
+            .catch((err) => console.error(err));
+        }, 1000);
+      });
+
+      function updateTable(users) {
+        usersTableBody.innerHTML = "";
+        users.forEach((user, index) => {
+          const row = document.createElement("tr");
+          row.setAttribute("data-id", user.id);
+          row.innerHTML = `
+            <td><input type="checkbox" class="rowCheckbox" data-id="${
+              user.id
+            }" /></td>
+            <td>${index + 1}</td>
+            <td class="username">${user.username}</td>
+            <td class="password">${user.password}</td>
+            <td class="role">${user.role}</td>
+            <td><button class="editBtn" data-id="${user.id}">Edit</button></td>
+          `;
+          usersTableBody.appendChild(row);
+        });
+      }
+
+      // --------------------------------------
+      //FUNGSI SELECT ALL CHECKBOX
+      document
+        .getElementById("selectAll")
+        .addEventListener("change", function () {
+          const checked = this.checked;
+          document
+            .querySelectorAll(".rowCheckbox")
+            .forEach((chk) => (chk.checked = checked));
+        });
+
+      // --------------------------------------
+      //FUNGSI DELETE SELECTED DENGAN MODAL KONFIRMASI
+      document
+        .getElementById("deleteSelectedBtn")
+        .addEventListener("click", () => {
+          const selectedIds = Array.from(
+            document.querySelectorAll(".rowCheckbox")
+          )
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.getAttribute("data-id"));
+
+          if (selectedIds.length === 0) {
+            alert("tidak ada data yang dipilih");
+            return;
+          }
+
+          // tampilkan model delete custom
+          const deleteModal = document.getElementById("deleteModal");
+          deleteModal.style.display = "block";
+
+          // tombol konfirmasi hapus
+          document.getElementById("deleteConfirmBtn").onclick = function () {
+            fetch("/database/users/delete", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ ids: selectedIds }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  selectedIds.forEach((id) => {
+                    const row = document.querySelector(`tr[data-id="${id}"]`);
+                    if (row) {
+                      row.remove();
+                    }
+                  });
+                } else {
+                  alert(data.message || "Gagal menghapus data");
+                }
+                deleteModal.style.display = "none";
+              });
+          };
+
+          // tombol batalkan modal hapus
+          document.getElementById("deleteCancelBtn").onclick = function () {
+            deleteModal.style.display = "none";
+          };
+        });
+
+      // --------------------------------------
+      //FUNGSI EDIT: TAMPILKAN MODAL EDIT
+      document.addEventListener("click", function (e) {
+        if (e.targe || e.target.classList.contains("editBtn")) {
+          const userId = e.target.getAttribute("data-id");
+          const row = document.querySelector(`tr[data-id="${userId}"]`);
+          const username = row.querySelector(".username").textContent;
+          const password = row.querySelector(".password").textContent;
+          const role = row.querySelector(".role").textContent;
+
+          document.getElementById("editUserId").value = userId;
+          document.getElementById("editUsername").value = username;
+          document.getElementById("editPassword").value = password;
+          document.getElementById("editRole").value = role;
+
+          document.getElementById("editModal").style.display = "block";
+        }
+      });
+
+      // --------------------------------------
+      //BATALKAN MODAL EDIT
+      document
+        .getElementById("editCancelBtn")
+        .addEventListener("click", function () {
+          document.getElementById("editModal").style.display = "none";
+        });
+
+      // --------------------------------------
+      //KONFIRMASI EDIT MELALUI AJAX
+      document
+        .getElementById("editConfirmBtn")
+        .addEventListener("click", function () {
+          const userId = document.getElementById("editUserId").value;
+          const username = document.getElementById("editUsername").value;
+          const password = document.getElementById("editPassword").value;
+          const role = document.getElementById("editRole").value;
+
+          fetch("/database/users/edit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: userId, username, password, role }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // perbarui data pada baris tabel
+                const row = document.querySelector(`tr[data-id="${userId}"]`);
+                row.querySelector(".username").textContent = username;
+                row.querySelector(".password").textContent = password;
+                row.querySelector(".role").textContent = role;
+              } else {
+                alert(data.message || "Gagal update data");
+              }
+              document.getElementById("editModal").style.display = "none";
+            })
+            .catch((err) => {
+              console.error(err);
+              document.getElementById("editModal").style.display = "none";
+            });
+        });
+    </script>
+  </body>
+</html>

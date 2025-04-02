@@ -50,6 +50,7 @@ const myAnswersRoutes = require("./routes/myAnswersRoutes");
 const studentsAnswersRoutes = require("./routes/studentsAnswersRoutes");
 const adminDownloadRoutes = require("./routes/adminDownloadRoutes");
 const faqRoutes = require("./routes/faqRoutes");
+const databaseUsersRoutes = require("./routes/databaseUsersRoutes");
 
 // menggunakan routes
 app.use("/", authRoutes);
@@ -60,6 +61,9 @@ app.use("/myAnswers", myAnswersRoutes);
 app.use("/studentsAnswers", studentsAnswersRoutes);
 app.use("/admin/download", adminDownloadRoutes);
 app.use("/faq", faqRoutes);
+
+// route untuk manajemen data pada database
+app.use("/database/users", databaseUsersRoutes);
 
 // endpoint untuk halaman akhir exercise
 app.get("/endExercise", (req, res) => {
