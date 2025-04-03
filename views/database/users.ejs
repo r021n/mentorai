@@ -4,26 +4,111 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manajemen Users</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --primary: #009e61;
+        --orange: #ff7849;
+        --white: #ffffff;
+        --dark: #1a1a1a;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: var(--dark);
+        margin-bottom: 2rem;
+      }
+
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
       table {
         border-collapse: collapse;
         width: 100%;
+        min-width: 800px;
       }
 
-      table,
-      th,
-      td {
-        border: 1px solid #ddd;
-      }
-
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
+      thead {
+        position: sticky;
+        top: 0;
+        background: var(--white);
+        z-index: 10;
       }
 
       th {
-        background-color: #f2f2f2;
+        background-color: var(--primary);
+        color: var(--white);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 1rem;
+        text-align: left;
+      }
+
+      td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+        max-height: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      tr:hover {
+        background-color: #f8f8f8;
+      }
+
+      .search-input {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: var(--white);
+      }
+
+      .btn-danger {
+        background-color: var(--orange);
+        color: var(--white);
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
       }
 
       /* modal style */
@@ -39,25 +124,64 @@
       }
 
       .modal-content {
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 400px;
+        background-color: var(--white);
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       }
 
       .modal-header {
-        font-weight: bold;
-        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+      }
+
+      .modal-body input {
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.5rem 0 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
       }
 
       .modal-actions {
-        margin-top: 20px;
+        margin-top: 1.5rem;
         text-align: right;
       }
 
       .modal-actions button {
-        margin-left: 10px;
+        margin-left: 1rem;
+      }
+
+      /* Custom Notification */
+      .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 4px;
+        background: var(--white);
+        color: var(--dark);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        z-index: 1100;
+      }
+
+      .notification.success {
+        border-left: 4px solid var(--primary);
+      }
+
+      .notification.error {
+        border-left: 4px solid var(--orange);
+      }
+
+      .notification.show {
+        transform: translateX(0);
       }
     </style>
   </head>
@@ -68,45 +192,56 @@
     <input
       type="text"
       id="searchInput"
+      class="search-input"
       placeholder="Cari berdasarkan username...."
     />
-    <br /><br />
 
     <!-- table data users -->
-    <table id="usersTable">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="selectAll" /></th>
-          <th>ID</th>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Role</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% users.forEach((user, index) => { %>
-        <tr data-id="<%= user.id%>">
-          <td>
-            <input
-              type="checkbox"
-              class="rowCheckbox"
-              data-id="<%= user.id %>"
-            />
-          </td>
-          <td><%= user.id %></td>
-          <td class="username"><%= user.username%></td>
-          <td class="password"><%= user.password%></td>
-          <td class="role"><%= user.role%></td>
-          <td><button class="editBtn" data-id="<%= user.id%>">Edit</button></td>
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll" /></th>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Role</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach((user, index) => { %>
+          <tr data-id="<%= user.id%>">
+            <td>
+              <input
+                type="checkbox"
+                class="rowCheckbox"
+                data-id="<%= user.id %>"
+              />
+            </td>
+            <td><%= user.id %></td>
+            <td class="username"><%= user.username%></td>
+            <td class="password"><%= user.password%></td>
+            <td class="role"><%= user.role%></td>
+            <td>
+              <button class="editBtn btn btn-primary" data-id="<%= user.id%>">
+                Edit
+              </button>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
 
     <!-- tombol untuk menghapus data yang dipilih -->
     <br />
-    <button id="deleteSelectedBtn">Delete Selected</button>
+    <button id="deleteSelectedBtn" class="btn btn-danger">
+      Delete Selected
+    </button>
+
+    <!-- notification container -->
+    <div id="notification" class="notification"></div>
 
     <!-- modal edit user -->
     <div class="modal" id="editModal">
@@ -128,8 +263,10 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button id="editCancelBtn">Batal</button>
-          <button id="editConfirmBtn">Konfirmasi</button>
+          <button id="editCancelBtn" class="btn">Batal</button>
+          <button id="editConfirmBtn" class="btn btn-primary">
+            Konfirmasi
+          </button>
         </div>
       </div>
     </div>
@@ -142,8 +279,8 @@
           Apakah anda ingin menghapus data yang dipilih?
         </div>
         <div class="modal-actions">
-          <button id="deleteCancelBtn">Batal</button>
-          <button id="deleteConfirmBtn">Hapus</button>
+          <button id="deleteCancelBtn" class="btn">Batal</button>
+          <button id="deleteConfirmBtn" class="btn btn-danger">Hapus</button>
         </div>
       </div>
     </div>
@@ -177,7 +314,7 @@
             <td class="username">${user.username}</td>
             <td class="password">${user.password}</td>
             <td class="role">${user.role}</td>
-            <td><button class="editBtn" data-id="${user.id}">Edit</button></td>
+            <td><button class="editBtn btn btn-primary" data-id="${user.id}">Edit</button></td>
           `;
           usersTableBody.appendChild(row);
         });
@@ -206,7 +343,7 @@
             .map((checkbox) => checkbox.getAttribute("data-id"));
 
           if (selectedIds.length === 0) {
-            alert("tidak ada data yang dipilih");
+            showNotification("Tidak ada data yang dipilih", "error");
             return;
           }
 
@@ -233,7 +370,10 @@
                     }
                   });
                 } else {
-                  alert(data.message || "Gagal menghapus data");
+                  showNotification(
+                    data.message || "Gagal menghapus data",
+                    "error"
+                  );
                 }
                 deleteModal.style.display = "none";
               });
@@ -296,7 +436,7 @@
                 row.querySelector(".password").textContent = password;
                 row.querySelector(".role").textContent = role;
               } else {
-                alert(data.message || "Gagal update data");
+                showNotification(data.message || "Gagal update data", "error");
               }
               document.getElementById("editModal").style.display = "none";
             })
@@ -305,6 +445,16 @@
               document.getElementById("editModal").style.display = "none";
             });
         });
+      // Fungsi untuk menampilkan notifikasi
+      function showNotification(message, type = "success") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.className = `notification ${type} show`;
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
     </script>
   </body>
 </html>

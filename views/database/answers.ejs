@@ -2,22 +2,136 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manajemen Answers</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      /* Basic table styles */
+      :root {
+        --primary: #009e61;
+        --orange: #ff7849;
+        --white: #ffffff;
+        --dark: #1a1a1a;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        color: var(--dark);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: var(--primary);
+        margin-bottom: 2rem;
+        font-weight: 600;
+      }
+
+      .filter-form {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .filter-form label {
+        font-weight: 500;
+        margin-right: 1rem;
+      }
+
+      .filter-form input {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 2rem;
+        font-size: 0.9rem;
+      }
+
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
+        min-width: 800px;
       }
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 8px;
+
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 1;
       }
+
       th {
-        background-color: #f2f2f2;
+        background-color: var(--primary);
+        color: var(--white);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        padding: 1rem;
       }
+
+      td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+        max-height: 30px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      tbody tr:hover {
+        background-color: #f8f8f8;
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .editBtn {
+        background-color: var(--primary);
+        color: var(--white);
+      }
+
+      .editBtn:hover {
+        background-color: #008451;
+      }
+
+      #deleteSelectedBtn {
+        background-color: var(--orange);
+        color: var(--white);
+        margin-top: 1rem;
+      }
+
+      #deleteSelectedBtn:hover {
+        background-color: #ff6635;
+      }
+
       /* Modal styles */
       .modal {
         display: none;
@@ -29,95 +143,140 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
       }
+
       .modal-content {
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 400px;
+        background-color: var(--white);
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       }
+
       .modal-header {
-        font-weight: bold;
-        margin-bottom: 10px;
+        color: var(--dark);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
       }
+
+      .modal-body input {
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.5rem 0 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
       .modal-actions {
-        margin-top: 20px;
+        margin-top: 1.5rem;
         text-align: right;
       }
+
       .modal-actions button {
-        margin-left: 10px;
+        margin-left: 1rem;
+      }
+
+      /* Custom Notification */
+      .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 4px;
+        background: var(--white);
+        color: var(--dark);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        z-index: 1100;
+      }
+
+      .notification.success {
+        border-left: 4px solid var(--primary);
+      }
+
+      .notification.error {
+        border-left: 4px solid var(--orange);
+      }
+
+      .notification.show {
+        transform: translateX(0);
       }
     </style>
   </head>
   <body>
-    <h1>Manajemen Answers</h1>
+    <div class="container">
+      <h1>Manajemen Answers</h1>
 
-    <!-- Filter Form -->
-    <div>
-      <label>User ID: </label>
-      <input
-        type="text"
-        id="filterUserId"
-        value="<%= filters.userId || '' %>"
-        placeholder="Filter by user ID"
-      />
-      <label>Question ID: </label>
-      <input
-        type="text"
-        id="filterQuestionId"
-        value="<%= filters.questionId || '' %>"
-        placeholder="Filter by question ID"
-      />
-      <label>Topic ID: </label>
-      <input
-        type="text"
-        id="filterTopicId"
-        value="<%= filters.topicId || '' %>"
-        placeholder="Filter by topic ID"
-      />
+      <!-- Filter Form -->
+      <div class="filter-form">
+        <label>User ID: </label>
+        <input
+          type="text"
+          id="filterUserId"
+          value="<%= filters.userId || '' %>"
+          placeholder="Filter by user ID"
+        />
+        <label>Question ID: </label>
+        <input
+          type="text"
+          id="filterQuestionId"
+          value="<%= filters.questionId || '' %>"
+          placeholder="Filter by question ID"
+        />
+        <label>Topic ID: </label>
+        <input
+          type="text"
+          id="filterTopicId"
+          value="<%= filters.topicId || '' %>"
+          placeholder="Filter by topic ID"
+        />
+      </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+      <table id="answersTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll" /></th>
+            <th>ID</th>
+            <th>Answer</th>
+            <th>Feedback</th>
+            <th>Score</th>
+            <th>User ID</th>
+            <th>Question ID</th>
+            <th>Topic ID</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% answers.forEach(function(ans, index) { %>
+          <tr data-id="<%= ans.id %>">
+            <td>
+              <input
+                type="checkbox"
+                class="rowCheckbox"
+                data-id="<%= ans.id %>"
+              />
+            </td>
+            <td><%= ans.id %></td>
+            <td class="answerCell"><%= ans.answer %></td>
+            <td class="feedbackCell"><%= ans.feedback %></td>
+            <td class="scoreCell"><%= ans.score %></td>
+            <td class="userIdCell"><%= ans.userId %></td>
+            <td class="questionIdCell"><%= ans.questionId %></td>
+            <td class="topicIdCell"><%= ans.topicId %></td>
+            <td><button class="editBtn" data-id="<%= ans.id %>">Edit</button></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
     </div>
-    <br />
 
-    <!-- Table untuk menampilkan data answers -->
-    <table id="answersTable">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="selectAll" /></th>
-          <th>ID</th>
-          <th>Answer</th>
-          <th>Feedback</th>
-          <th>Score</th>
-          <th>User ID</th>
-          <th>Question ID</th>
-          <th>Topic ID</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% answers.forEach(function(ans, index) { %>
-        <tr data-id="<%= ans.id %>">
-          <td>
-            <input
-              type="checkbox"
-              class="rowCheckbox"
-              data-id="<%= ans.id %>"
-            />
-          </td>
-          <td><%= ans.id %></td>
-          <td class="answerCell"><%= ans.answer %></td>
-          <td class="feedbackCell"><%= ans.feedback %></td>
-          <td class="scoreCell"><%= ans.score %></td>
-          <td class="userIdCell"><%= ans.userId %></td>
-          <td class="questionIdCell"><%= ans.questionId %></td>
-          <td class="topicIdCell"><%= ans.topicId %></td>
-          <td><button class="editBtn" data-id="<%= ans.id %>">Edit</button></td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-
-    <!-- Tombol Delete Selected -->
-    <button id="deleteSelectedBtn">Delete Selected</button>
+      <!-- Tombol Delete Selected -->
+      <button id="deleteSelectedBtn">Delete Selected</button>
 
     <!-- Modal Konfirmasi Hapus -->
     <div id="deleteModal" class="modal">
@@ -171,7 +330,22 @@
       </div>
     </div>
 
+    <!-- Custom Notification -->
+    <div id="notification" class="notification"></div>
+
     <script>
+      // Fungsi untuk menampilkan notifikasi
+      function showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+
       // -------------------------------
       // FILTERING DENGAN DEBOUNCE 1 DETIK
       let filterTimer;
@@ -190,7 +364,10 @@
           .then((data) => {
             updateTable(data);
           })
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            console.error(err);
+            showNotification('Gagal memuat data', 'error');
+          });
       };
 
       filterUserIdInput.addEventListener("keyup", () => {
@@ -249,7 +426,7 @@
             .filter((chk) => chk.checked)
             .map((chk) => chk.getAttribute("data-id"));
           if (selectedIds.length === 0) {
-            alert("Tidak ada data yang dipilih!");
+            showNotification('Tidak ada data yang dipilih!', 'error');
             return;
           }
           document.getElementById("deleteModal").style.display = "block";
@@ -267,13 +444,15 @@
                     const row = document.querySelector(`tr[data-id="${id}"]`);
                     if (row) row.remove();
                   });
+                  showNotification('Data berhasil dihapus');
                 } else {
-                  alert(data.message || "Gagal menghapus data.");
+                  showNotification(data.message || 'Gagal menghapus data', 'error');
                 }
                 document.getElementById("deleteModal").style.display = "none";
               })
               .catch((err) => {
                 console.error(err);
+                showNotification('Terjadi kesalahan saat menghapus data', 'error');
                 document.getElementById("deleteModal").style.display = "none";
               });
           };
