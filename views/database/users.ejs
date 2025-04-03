@@ -77,7 +77,7 @@
       <thead>
         <tr>
           <th><input type="checkbox" id="selectAll" /></th>
-          <th>No</th>
+          <th>ID</th>
           <th>Username</th>
           <th>Password</th>
           <th>Role</th>
@@ -94,7 +94,7 @@
               data-id="<%= user.id %>"
             />
           </td>
-          <td><%= index + 1 %></td>
+          <td><%= user.id %></td>
           <td class="username"><%= user.username%></td>
           <td class="password"><%= user.password%></td>
           <td class="role"><%= user.role%></td>
@@ -172,10 +172,8 @@
           const row = document.createElement("tr");
           row.setAttribute("data-id", user.id);
           row.innerHTML = `
-            <td><input type="checkbox" class="rowCheckbox" data-id="${
-              user.id
-            }" /></td>
-            <td>${index + 1}</td>
+            <td><input type="checkbox" class="rowCheckbox" data-id="${user.id}" /></td>
+            <td>${user.id}</td>
             <td class="username">${user.username}</td>
             <td class="password">${user.password}</td>
             <td class="role">${user.role}</td>
