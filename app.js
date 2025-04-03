@@ -72,6 +72,16 @@ app.get("/endExercise", (req, res) => {
   res.render("endExercise");
 });
 
+// endpoint untuk menampilkan halaman tidak ditemukan
+app.get("/404", (req, res) => {
+  res.status(404).render("404");
+});
+
+// middleware catch all route (langsung merender view 404)
+app.use((req, res, next) => {
+  res.status(404).render("404");
+});
+
 // buat tabel user jika belum ada dan seed akun admin
 db.serialize(() => {
   // table users
