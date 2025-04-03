@@ -205,8 +205,8 @@
 
       <!-- Container untuk menampilkan soal -->
       <div id="question-container">
-        <div id="question-text"></div>
         <div id="question-image"></div>
+        <div id="question-text"></div>
       </div>
 
       <!-- Form untuk memasukkan jawaban -->
@@ -264,7 +264,7 @@
         // tampilkan image jika ada imagePath
         if(question.pathImage) {
             document.getElementById("question-image").innerHTML =
-            `<img src="${question.pathImage}" alt="${question.imageDescription || ''}" style="max-width: 300px;">`;
+            `<img src="${question.pathImage}" alt="${question.imageDescription || ''}" style="max-width: 100%; max-heigth= 50vh">`;
         } else {
             document.getElementById("question-image").innerHTML = ""
         }
