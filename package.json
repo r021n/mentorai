@@ -12,16 +12,16 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/genai": "^0.7.0",
-    "dotenv": "^16.4.7",
+    "@google/genai": "^1.30.0",
+    "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
-    "express": "^4.21.2",
-    "express-session": "^1.18.1",
-    "multer": "^1.4.5-lts.2",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.11"
   }
 }
