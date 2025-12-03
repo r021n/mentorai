@@ -111,6 +111,7 @@
 
       .form-group {
         margin-bottom: 1rem;
+        position: relative;
       }
 
       .form-group label {
@@ -186,6 +187,18 @@
         transform: translateX(0);
       }
 
+      .password-toggle {
+        position: absolute;
+        right: 0.75rem;
+        top: 70%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
+      }
+
       @media screen and (max-width: 768px) {
         .burger {
           display: block;
@@ -253,6 +266,9 @@
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required />
+            <button type="button" id="togglePassword" class="password-toggle">
+              Lihat
+            </button>
           </div>
           <button type="submit">Login</button>
         </form>
@@ -276,6 +292,15 @@
 
       // Error notification functionality
       const error = `<%= error %>`;
+      const passwordInput = document.getElementById("password");
+      const togglePassword = document.getElementById("togglePassword");
+
+      togglePassword.addEventListener("click", () => {
+        const isHidden = passwordInput.type === "password";
+        passwordInput.type = isHidden ? "text" : "password";
+        togglePassword.textContent = isHidden ? "Sembunyikan" : "Lihat";
+      });
+
       const notification = document.getElementById("notification");
 
       if (error && error !== "") {

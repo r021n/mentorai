@@ -103,6 +103,7 @@
 
       .form-group {
         margin-bottom: 1.5rem;
+        position: relative;
       }
 
       .form-group label {
@@ -129,11 +130,12 @@
       .password-match-message {
         color: red;
         font-size: 0.875rem;
-        margin-top: 0.5rem;
+        margin-top: 0.1rem;
+        margin-bottom: 1rem;
         display: none;
       }
 
-      button {
+      button[type="submit"] {
         width: 100%;
         padding: 0.75rem;
         background-color: var(--primary);
@@ -146,7 +148,7 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
 
-      button:hover {
+      button[type="submit"]:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0, 158, 97, 0.3);
       }
@@ -181,6 +183,18 @@
 
       .notification.show {
         transform: translateX(0);
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 0.75rem;
+        top: 70%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
       }
 
       @media screen and (max-width: 768px) {
@@ -250,6 +264,9 @@
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required />
+            <button type="button" id="togglePassword" class="password-toggle">
+              Lihat
+            </button>
           </div>
           <div class="form-group">
             <label for="confirmPassword">Konfirmasi Password</label>
@@ -259,9 +276,16 @@
               name="confirmPassword"
               required
             />
-            <div class="password-match-message" id="passwordMatchMessage">
-              Password belum sama
-            </div>
+            <button
+              type="button"
+              id="toggleConfirmPassword"
+              class="password-toggle"
+            >
+              Lihat
+            </button>
+          </div>
+          <div class="password-match-message" id="passwordMatchMessage">
+            Password belum sama
           </div>
           <button type="submit">Daftar</button>
         </form>
@@ -289,6 +313,21 @@
       const passwordMatchMessage = document.getElementById(
         "passwordMatchMessage"
       );
+      const togglePassword = document.getElementById("togglePassword");
+      const toggleConfirmPassword = document.getElementById(
+        "toggleConfirmPassword"
+      );
+
+      function attachToggle(input, button) {
+        button.addEventListener("click", () => {
+          const isHidden = input.type === "password";
+          input.type = isHidden ? "text" : "password";
+          button.textContent = isHidden ? "Sembunyikan" : "Lihat";
+        });
+      }
+
+      attachToggle(password, togglePassword);
+      attachToggle(confirmPassword, toggleConfirmPassword);
 
       function validatePassword() {
         if (password.value !== confirmPassword.value) {
