@@ -19,6 +19,7 @@
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "multer": "^2.0.2",
+    "p-queue": "^9.0.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

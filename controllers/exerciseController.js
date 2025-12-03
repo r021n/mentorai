@@ -1,16 +1,37 @@
 const { GoogleGenAI } = require("@google/genai");
+const PQueue = require("p-queue").default;
 require("dotenv").config();
 
 // =========================================================
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY is not set");
+}
+const genAI = new GoogleGenAI({ apiKey: apiKey });
+const feedbackQueue = new PQueue({ concurrency: 1 });
+const MAX_RETRIES = 2;
+
 // fungsi untuk generate feedback
 async function generateFeedback(inputText) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const genAI = new GoogleGenAI({ apiKey: apiKey });
-  const response = await genAI.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: inputText,
-  });
-  return response.text;
+  return feedbackQueue.add(() => generateFeedbackWithRetry(inputText));
+}
+
+async function generateFeedbackWithRetry(inputText, attempt = 0) {
+  try {
+    const response = await genAI.models.generateContent({
+      model: "gemini-2.5-flash",
+      config: { temperature: 0 },
+      contents: inputText,
+    });
+    return response.text;
+  } catch (error) {
+    if (attempt >= MAX_RETRIES) {
+      throw error;
+    }
+    const backoff = Math.pow(2, attempt) * 500;
+    await new Promise((resolve) => setTimeout(resolve, backoff));
+    return generateFeedbackWithRetry(inputText, attempt + 1);
+  }
 }
 
 // fungsi untuk mendapatkan pertanyaan dari database
@@ -89,10 +110,20 @@ exports.postSubmitAnswer = async (req, res) => {
   const score = 3;
   const db = req.db;
 
+  let question;
+  let feedback;
+
   // get question from database and make the prompt
-  const question = await getQuestionById(db, questionId);
-  const prompt = `Tolong berikan feedback edukatif singkat (maksimal 3 kalimat) untuk pertanyaan berikut "${question}" terhadap jawaban berikut "${answer}"`;
-  let feedback = await generateFeedback(prompt);
+  try {
+    question = await getQuestionById(db, questionId);
+    const prompt = `Tolong berikan feedback edukatif singkat (maksimal 3 kalimat) untuk pertanyaan berikut "${question}" terhadap jawaban berikut "${answer}"`;
+    feedback = await generateFeedback(prompt);
+  } catch (error) {
+    console.error("Feedback queue error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Gagal menghasilkan feedback" });
+  }
 
   //   cek apakah sudah ada record answer
   db.get(
