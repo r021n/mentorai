@@ -69,7 +69,7 @@ async function generateFeedbackWithRetry(inputText, attempt = 0) {
 function getQuestionById(db, questionId) {
   return new Promise((resolve, reject) => {
     db.get(
-      "SELECT question FROM questions WHERE id = ?",
+      "SELECT question, imageDescription FROM questions WHERE id = ?",
       [questionId],
       (err, row) => {
         if (err) {
@@ -77,7 +77,7 @@ function getQuestionById(db, questionId) {
         } else if (!row) {
           reject(new Error("Pertanyaan tidak ditemukan"));
         } else {
-          resolve(row.question);
+          resolve(row);
         }
       }
     );
@@ -139,19 +139,19 @@ exports.postSubmitAnswer = async (req, res) => {
   const { questionId, answer } = req.body;
   const db = req.db;
 
-  let question;
   let feedback;
   let score = 0;
 
   // get question from database and make the prompt
   try {
-    question = await getQuestionById(db, questionId);
+    const questionData = await getQuestionById(db, questionId);
     const prompt = `Tugas Anda: nilai jawaban siswa secara objektif.
 Output wajib berupa JSON valid tanpa teks tambahan dengan format {"feedback":"...", "score":<0-3>}.
 Ketentuan:
 - Feedback edukatif maksimal 3 kalimat (lebih pendek lebih baik) dan jangan membocorkan jawaban, arahkan siswa berpikir logis.
 - Skor berupa angka 0 hingga 3 sesuai ketepatan jawaban.
-Pertanyaan: "${question}"
+Pertanyaan: "${questionData.question}"
+Gambar pendukung soal: "${questionData.imageDescription || "-"}"
 Jawaban siswa: "${answer}"`;
     const rawResponse = await generateFeedback(prompt);
     const parsed = parseFeedbackResponse(rawResponse);
