@@ -10,6 +10,37 @@ if (!apiKey) {
 const genAI = new GoogleGenAI({ apiKey: apiKey });
 const feedbackQueue = new PQueue({ concurrency: 1 });
 const MAX_RETRIES = 2;
+const DEFAULT_FEEDBACK =
+  "Maaf, kami tidak dapat memberikan evaluasi saat ini. Silakan coba lagi.";
+
+function parseFeedbackResponse(rawText) {
+  if (typeof rawText !== "string" || !rawText.trim()) {
+    throw new Error("Respon Gemini kosong");
+  }
+  let candidate = rawText.trim();
+  if (!candidate.startsWith("{")) {
+    const start = candidate.indexOf("{");
+    const end = candidate.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      candidate = candidate.slice(start, end + 1);
+    }
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(candidate);
+  } catch {
+    throw new Error("Format respon Gemini tidak valid");
+  }
+  const feedback =
+    typeof parsed.feedback === "string" && parsed.feedback.trim()
+      ? parsed.feedback.trim()
+      : DEFAULT_FEEDBACK;
+  const numericScore = Number(parsed.score);
+  const score = Number.isFinite(numericScore)
+    ? Math.max(0, Math.min(3, numericScore))
+    : 0;
+  return { feedback, score };
+}
 
 // fungsi untuk generate feedback
 async function generateFeedback(inputText) {
@@ -106,18 +137,26 @@ exports.postSubmitAnswer = async (req, res) => {
   const topicId = req.params.topicId;
   const userId = req.session.user.id;
   const { questionId, answer } = req.body;
-  //   generate dummy feedback dan score
-  const score = 3;
   const db = req.db;
 
   let question;
   let feedback;
+  let score = 0;
 
   // get question from database and make the prompt
   try {
     question = await getQuestionById(db, questionId);
-    const prompt = `Tolong berikan feedback edukatif singkat (maksimal 3 kalimat) untuk pertanyaan berikut "${question}" terhadap jawaban berikut "${answer}"`;
-    feedback = await generateFeedback(prompt);
+    const prompt = `Tugas Anda: nilai jawaban siswa secara objektif.
+Output wajib berupa JSON valid tanpa teks tambahan dengan format {"feedback":"...", "score":<0-3>}.
+Ketentuan:
+- Feedback edukatif maksimal 3 kalimat (lebih pendek lebih baik) dan jangan membocorkan jawaban, arahkan siswa berpikir logis.
+- Skor berupa angka 0 hingga 3 sesuai ketepatan jawaban.
+Pertanyaan: "${question}"
+Jawaban siswa: "${answer}"`;
+    const rawResponse = await generateFeedback(prompt);
+    const parsed = parseFeedbackResponse(rawResponse);
+    feedback = parsed.feedback;
+    score = parsed.score;
   } catch (error) {
     console.error("Feedback queue error:", error);
     return res
