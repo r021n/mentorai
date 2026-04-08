@@ -12,5 +12,6 @@ router.use((req, res, next) => {
 router.get("/", exerciseController.getExcerciseTopics);
 router.get("/:topicId", exerciseController.getExercisePage);
 router.post("/:topicId/submitAnswer", exerciseController.postSubmitAnswer);
+router.post("/:topicId/generateFeedback", exerciseController.postGenerateFeedback);
 
 module.exports = router;

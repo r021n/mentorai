@@ -219,9 +219,25 @@
         ></textarea>
         <input type="hidden" name="questionId" id="questionId" />
         <button type="submit" id="submitAnswerBtn">Kirim jawaban</button>
+        <button
+          type="button"
+          id="retryFeedbackBtn"
+          style="
+            display: none;
+            background-color: var(--orange);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+          "
+        >
+          Dapatkan Feedback
+        </button>
         <div id="loading">
           <div class="loading-spinner"></div>
-          <p>Sedang menilai...</p>
+          <p id="loadingText">Sedang menyimpan...</p>
         </div>
       </form>
 
@@ -272,19 +288,34 @@
         // set hidden field untuk questionId
         document.getElementById("questionId").value = question.id;
 
+        const answerTextEl = document.getElementById("answerText");
+        const retryBtnEl = document.getElementById("retryFeedbackBtn");
+
         // pre-fill textarea jika sudah ada jawaban di answersMap
         if(answersMap[question.id]) {
-            document.getElementById("answerText").value = answersMap[question.id].answer || "";
+            answerTextEl.value = answersMap[question.id].answer || "";
+            answerTextEl.readOnly = true;
+            answerTextEl.style.backgroundColor = "#f0f0f0";
+
             feedbackDiv.innerText = answersMap[question.id].feedback || "";
 
-            // sembunyikan submit button jika ada feedback
-            submitAnswerBtn.style.display = feedbackDiv.innerText ? "none" : "block";
+            submitAnswerBtn.style.display = "none";
+
+            // Tampilkan tombol retry jika feedback masih kosong
+            if (!answersMap[question.id].feedback) {
+                retryBtnEl.style.display = "block";
+            } else {
+                retryBtnEl.style.display = "none";
+            }
         } else {
-            document.getElementById("answerText").value = "";
+            answerTextEl.value = "";
+            answerTextEl.readOnly = false;
+            answerTextEl.style.backgroundColor = "";
+
             feedbackDiv.innerText = "";
 
-            // tampilkan tombol submit jika tidak ada feedback
             submitAnswerBtn.style.display = "block";
+            retryBtnEl.style.display = "none";
         }
 
         // tampilkan atau sembunyikan tombol prev serta ubah tombol next jika berada di indeks terakhir
@@ -313,49 +344,90 @@
         }, 30);
       }
 
+      async function requestGenerateFeedback(questionId, answer) {
+          document.getElementById("loadingText").innerText = "Menganalisis jawaban Anda...";
+          try {
+            const response = await fetch(window.location.pathname + "/generateFeedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ questionId: questionId })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                answersMap[questionId].feedback = data.feedback;
+                document.getElementById("retryFeedbackBtn").style.display = "none";
+
+                if(!sessionStorage.getItem("feedbackAnimated_" + questionId)) {
+                  animatedFeedback(feedbackDiv, data.feedback, () => {
+                    sessionStorage.setItem("feedbackAnimated_" + questionId, true);
+                  });
+                } else {
+                  feedbackDiv.innerText = data.feedback;
+                }
+            } else {
+                alert(data.message || "Gagal menghubungi AI. Silakan coba lagi nanti.");
+                document.getElementById("retryFeedbackBtn").style.display = "block";
+            }
+          } catch(err) {
+              console.error(err);
+              alert("Terjadi kesalahan jaringan saat mencoba menghubungi AI.");
+              document.getElementById("retryFeedbackBtn").style.display = "block";
+          } finally {
+              loading.style.display = "none";
+          }
+      }
+
       //   submit jawaban secara AJAX
-      document.getElementById("answerForm").addEventListener("submit", (e) => {
+      document.getElementById("answerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const answer = document.getElementById("answerText").value;
+        const answerTextEl = document.getElementById("answerText");
+        const answer = answerTextEl.value;
         const questionId = document.getElementById("questionId").value;
 
         // hilangkan tombol submit dan munculkan loading
         submitAnswerBtn.style.display = "none";
+        document.getElementById("retryFeedbackBtn").style.display = "none";
         loading.style.display = "block";
+        document.getElementById("loadingText").innerText = "Sedang menyimpan jawaban...";
 
-        // menggunakan fetch untuk submit data ke endpoint submitAnswer
-        fetch(window.location.pathname + "/submitAnswer", {
-            method: "POST",
-            headers: {
-                "Content-Type" : "application/json",
-            },
-            body: JSON.stringify({questionId: questionId, answer: answer})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                // update mapping jawaban untuk soal saat ini
-                answersMap[questionId] = {answer: answer, feedback: data.feedback};
+        try {
+            // 1. Simpan jawaban ke database
+            const saveRes = await fetch(window.location.pathname + "/submitAnswer", {
+                method: "POST",
+                headers: { "Content-Type" : "application/json" },
+                body: JSON.stringify({questionId: questionId, answer: answer})
+            });
+            const saveData = await saveRes.json();
 
-                // cek apakah animasi feedback sudah pernah dijalankan untuk question ini
-                if(!sessionStorage.getItem("feedbackAnimated_" + questionId)) {
-                  animatedFeedback(feedbackDiv, data.feedback, () => {
-                    sessionStorage.setItem("feedbackAnimated_" + questionId, true);
-                  })
-                } else {
-                  feedbackDiv.innerText = data.feedback;
-                }
+            if (saveData.success) {
+                // Kunci textarea segera setelah tersimpan sukses
+                answerTextEl.readOnly = true;
+                answerTextEl.style.backgroundColor = "#f0f0f0";
+                answersMap[questionId] = { answer: answer, feedback: null };
 
-                // hilangkan loading
-                loading.style.display = "none";
+                // 2. Minta request generate feedback
+                await requestGenerateFeedback(questionId, answer);
             } else {
-                alert(data.message || "Gagal menyimpan data");
+                alert(saveData.message || "Gagal menyimpan data");
+                loading.style.display = "none";
+                submitAnswerBtn.style.display = "block"; // Munculkan lagi kalau gagal save
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error(err);
             alert("Terjadi kesalahan saat mengirim jawaban");
-        });
+            loading.style.display = "none";
+            submitAnswerBtn.style.display = "block";
+        }
+      });
+
+      // Event listener tombol retry feedback
+      document.getElementById("retryFeedbackBtn").addEventListener("click", () => {
+          const questionId = document.getElementById("questionId").value;
+          const answer = document.getElementById("answerText").value;
+          document.getElementById("retryFeedbackBtn").style.display = "none";
+          loading.style.display = "block";
+          requestGenerateFeedback(questionId, answer);
       });
 
       //   event listener untuk tombol prev

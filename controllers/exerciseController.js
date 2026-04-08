@@ -50,7 +50,7 @@ async function generateFeedback(inputText) {
 async function generateFeedbackWithRetry(inputText, attempt = 0) {
   try {
     const response = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemma-4-31b-it",
       config: { temperature: 0 },
       contents: inputText,
     });
@@ -79,7 +79,7 @@ function getQuestionById(db, questionId) {
         } else {
           resolve(row);
         }
-      }
+      },
     );
   });
 }
@@ -127,9 +127,9 @@ exports.getExercisePage = (req, res) => {
             questions: JSON.stringify(questions),
             answers: JSON.stringify(answers),
           });
-        }
+        },
       );
-    }
+    },
   );
 };
 
@@ -139,11 +139,67 @@ exports.postSubmitAnswer = async (req, res) => {
   const { questionId, answer } = req.body;
   const db = req.db;
 
-  let feedback;
-  let score = 0;
-
-  // get question from database and make the prompt
   try {
+    const existingAnswer = await new Promise((resolve, reject) => {
+      db.get(
+        "SELECT * FROM answers WHERE userId = ? AND questionId = ? AND topicId = ?",
+        [userId, questionId, topicId],
+        (err, row) => (err ? reject(err) : resolve(row))
+      );
+    });
+
+    if (existingAnswer) {
+      return res.json({
+        success: false,
+        message: "Anda sudah menjawab soal ini dan tidak dapat mengubahnya.",
+      });
+    }
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        "INSERT INTO answers (answer, feedback, score, userId, questionId, topicId) VALUES (?, NULL, 0, ?, ?, ?)",
+        [answer, userId, questionId, topicId],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.lastID);
+        }
+      );
+    });
+
+    return res.json({ success: true, message: "Jawaban berhasil disimpan." });
+  } catch (dbError) {
+    console.error("DB error on submit answer:", dbError);
+    return res.json({ success: false, message: "Gagal menyimpan jawaban." });
+  }
+};
+
+exports.postGenerateFeedback = async (req, res) => {
+  const topicId = req.params.topicId;
+  const userId = req.session.user.id;
+  const { questionId } = req.body;
+  const db = req.db;
+
+  try {
+    const existingAnswer = await new Promise((resolve, reject) => {
+      db.get(
+        "SELECT * FROM answers WHERE userId = ? AND questionId = ? AND topicId = ?",
+        [userId, questionId, topicId],
+        (err, row) => (err ? reject(err) : resolve(row))
+      );
+    });
+
+    if (!existingAnswer) {
+      return res.json({ success: false, message: "Jawaban tidak ditemukan." });
+    }
+
+    if (existingAnswer.feedback) {
+      return res.json({
+        success: true,
+        feedback: existingAnswer.feedback,
+        message: "Feedback sudah ada.",
+      });
+    }
+
     const questionData = await getQuestionById(db, questionId);
     const prompt = `Tugas Anda: nilai jawaban siswa secara objektif.
 Output wajib berupa JSON valid tanpa teks tambahan dengan format {"feedback":"...", "score":<0-3>}.
@@ -152,65 +208,28 @@ Ketentuan:
 - Skor berupa angka 0 hingga 3 sesuai ketepatan jawaban.
 Pertanyaan: "${questionData.question}"
 Gambar pendukung soal: "${questionData.imageDescription || "-"}"
-Jawaban siswa: "${answer}"`;
+Jawaban siswa: "${existingAnswer.answer}"`;
+
     const rawResponse = await generateFeedback(prompt);
     const parsed = parseFeedbackResponse(rawResponse);
-    feedback = parsed.feedback;
-    score = parsed.score;
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        "UPDATE answers SET feedback = ?, score = ? WHERE id = ?",
+        [parsed.feedback, parsed.score, existingAnswer.id],
+        (err) => (err ? reject(err) : resolve())
+      );
+    });
+
+    return res.json({
+      success: true,
+      feedback: parsed.feedback,
+    });
   } catch (error) {
-    console.error("Feedback queue error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Gagal menghasilkan feedback" });
+    console.error("Generate feedback retry error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Gagal menghasilkan feedback. Pastikan AI tidak dalam kondisi limit.",
+    });
   }
-
-  //   cek apakah sudah ada record answer
-  db.get(
-    "SELECT * FROM answers WHERE userId = ? AND questionId = ? AND topicId = ?",
-    [userId, questionId, topicId],
-    (err, row) => {
-      if (err) {
-        return res.json({ success: false, message: "error saat query" });
-      }
-
-      if (row) {
-        // update jawaban yang sudah ada
-        db.run(
-          "UPDATE answers SET answer = ?, feedback = ?, score = ? WHERE id = ?",
-          [answer, feedback, score, row.id],
-          (err) => {
-            if (err) {
-              return res.json({
-                success: false,
-                message: "Gagal memperbarui jawaban",
-              });
-            }
-            return res.json({
-              success: true,
-              feedback: feedback,
-            });
-          }
-        );
-      } else {
-        //insert jawaban baru
-        db.run(
-          "INSERT INTO answers (answer, feedback, score, userId, questionId, topicId) VALUES (?, ?, ?, ?, ?, ?)",
-          [answer, feedback, score, userId, questionId, topicId],
-          (err) => {
-            if (err) {
-              return res.json({
-                success: false,
-                message: "Gagal menyimpan jawaban",
-              });
-            }
-
-            return res.json({
-              success: true,
-              feedback: feedback,
-            });
-          }
-        );
-      }
-    }
-  );
 };
