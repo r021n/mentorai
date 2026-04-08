@@ -128,6 +128,12 @@
         background-color: #008652;
       }
 
+      #submitAnswerBtn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #a0a0a0;
+      }
+
       #loading {
         display: none;
         text-align: center;
@@ -204,7 +210,7 @@
       <div class="progress-text" id="progressText"></div>
 
       <!-- Container untuk menampilkan soal -->
-      <div id="question-container">
+      <div id="question-container" style="user-select: none; -webkit-user-select: none;" oncopy="return false;" oncut="return false;">
         <div id="question-image"></div>
         <div id="question-text"></div>
       </div>
@@ -216,6 +222,8 @@
           id="answerText"
           rows="5"
           placeholder="Tulis jawabanmu disini"
+          onpaste="return false;"
+          ondrop="return false;"
         ></textarea>
         <input type="hidden" name="questionId" id="questionId" />
         <button type="submit" id="submitAnswerBtn">Kirim jawaban</button>
@@ -315,6 +323,7 @@
             feedbackDiv.innerText = "";
 
             submitAnswerBtn.style.display = "block";
+            submitAnswerBtn.disabled = true;
             retryBtnEl.style.display = "none";
         }
 
@@ -447,7 +456,14 @@
             // jika index terakhir maka akan diarahkan ke halaman /endExercise
             window.location.href = "/endExercise";
         }
-      })
+      });
+
+      // Validasi jumlah kata pada textarea minimal 2 kata
+      document.getElementById("answerText").addEventListener("input", function() {
+          const text = this.value.trim();
+          const wordCount = text ? text.split(/\s+/).length : 0;
+          submitAnswerBtn.disabled = wordCount < 2;
+      });
     </script>
   </body>
 </html>
