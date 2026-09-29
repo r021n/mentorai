@@ -26,11 +26,7 @@
       const res = await authApi.login({ username: username.trim(), password: password.trim() });
       authStore.setUser(res.user);
       toast.success(`Selamat datang kembali, ${res.user.username}!`);
-      if (res.user.role === 'admin') {
-        window.location.hash = '#/topics';
-      } else {
-        window.location.hash = '#/exercise';
-      }
+      window.location.hash = '#/dashboard';
     } catch (err: any) {
       errorMessage = err.message || 'Login gagal. Periksa kembali username dan password Anda.';
       toast.error(errorMessage);
