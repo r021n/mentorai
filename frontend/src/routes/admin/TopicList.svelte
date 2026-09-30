@@ -3,6 +3,7 @@
   import { topicsApi } from '../../lib/api/topics';
   import type { Topic } from '../../lib/types/topic.types';
   import { toast } from '../../lib/stores/toast.svelte';
+  import { preloadRoute } from '../../lib/utils/preloadRoute';
   import Button from '../../lib/components/ui/Button.svelte';
   import Input from '../../lib/components/ui/Input.svelte';
   import Modal from '../../lib/components/ui/Modal.svelte';
@@ -159,6 +160,7 @@
                   <div class="flex items-center justify-center gap-1.5 flex-wrap">
                     <a
                       href="#/topics/list/{topic.id}"
+                      use:preloadRoute
                       class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium border border-neutral-300 hover:bg-neutral-100 transition-colors text-neutral-800"
                     >
                       <ListFilter size={13} />
@@ -167,6 +169,7 @@
 
                     <a
                       href="#/studentsAnswers/{topic.id}"
+                      use:preloadRoute
                       class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium border border-neutral-300 hover:bg-neutral-100 transition-colors text-neutral-800"
                     >
                       <Users size={13} />

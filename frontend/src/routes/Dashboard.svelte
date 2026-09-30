@@ -7,6 +7,7 @@
   import type { Topic } from '../lib/types/topic.types';
   import type { DbUser, DbAnswer } from '../lib/types/admin.types';
   import { toast } from '../lib/stores/toast.svelte';
+  import { preloadRoute } from '../lib/utils/preloadRoute';
   import Spinner from '../lib/components/ui/Spinner.svelte';
   import {
     BookOpen,
@@ -103,6 +104,7 @@
         {#if authStore.isAdmin}
           <a
             href="#/topics"
+            use:preloadRoute
             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-neutral-950 text-xs font-bold hover:bg-neutral-100 transition-colors shadow-xs"
           >
             <Plus size={16} />
@@ -111,6 +113,7 @@
         {:else}
           <a
             href="#/exercise"
+            use:preloadRoute
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-neutral-950 text-xs font-bold hover:bg-neutral-100 transition-colors shadow-xs"
           >
             <Play size={16} />
@@ -192,6 +195,7 @@
       <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <a
           href="#/topics"
+          use:preloadRoute
           class="bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-between hover:border-neutral-950 transition-all group"
         >
           <div class="space-y-2">
@@ -211,6 +215,7 @@
 
         <a
           href="#/database/users"
+          use:preloadRoute
           class="bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-between hover:border-neutral-950 transition-all group"
         >
           <div class="space-y-2">
@@ -230,6 +235,7 @@
 
         <a
           href="#/database/answers"
+          use:preloadRoute
           class="bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-between hover:border-neutral-950 transition-all group"
         >
           <div class="space-y-2">
@@ -257,6 +263,7 @@
           </div>
           <a
             href="#/topics"
+            use:preloadRoute
             class="text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:underline"
           >
             Lihat Semua Topik →
@@ -286,12 +293,14 @@
                 <div class="flex items-center gap-2">
                   <a
                     href="#/topics/list/{topic.id}"
+                    use:preloadRoute
                     class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950 transition-colors"
                   >
                     Kelola Soal
                   </a>
                   <a
                     href="#/studentsAnswers/{topic.id}"
+                    use:preloadRoute
                     class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 transition-colors"
                   >
                     Matriks Nilai
@@ -371,6 +380,7 @@
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <a
           href="#/exercise"
+          use:preloadRoute
           class="bg-white border border-neutral-200 rounded-2xl p-6 flex items-center justify-between hover:border-neutral-950 transition-all group"
         >
           <div class="flex items-center gap-4">
@@ -389,6 +399,7 @@
 
         <a
           href="#/faq"
+          use:preloadRoute
           class="bg-white border border-neutral-200 rounded-2xl p-6 flex items-center justify-between hover:border-neutral-950 transition-all group"
         >
           <div class="flex items-center gap-4">
@@ -415,6 +426,7 @@
           </div>
           <a
             href="#/exercise"
+            use:preloadRoute
             class="text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:underline"
           >
             Lihat Semua Topik →
@@ -448,6 +460,7 @@
                 <div class="pt-3 border-t border-neutral-100 flex items-center gap-2">
                   <a
                     href="#/exercise/{topic.id}"
+                    use:preloadRoute
                     class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-950 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition-colors"
                   >
                     <Play size={13} />
@@ -455,6 +468,7 @@
                   </a>
                   <a
                     href="#/myAnswers/{topic.id}"
+                    use:preloadRoute
                     class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-100 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition-colors"
                   >
                     <CheckCircle2 size={13} />

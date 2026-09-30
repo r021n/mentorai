@@ -2,85 +2,54 @@
   import { onMount } from 'svelte';
   import { authStore } from './lib/stores/auth.svelte';
   import { router } from './lib/stores/router.svelte';
+  import { matchRoute, type RouteGuard } from './lib/routes';
   import Navbar from './lib/components/Navbar.svelte';
   import Footer from './lib/components/Footer.svelte';
   import Toast from './lib/components/Toast.svelte';
   import Spinner from './lib/components/ui/Spinner.svelte';
+  import RouteView from './lib/components/RouteView.svelte';
   import DashboardLayout from './lib/components/layout/DashboardLayout.svelte';
-
-  // Routes
-  import Home from './routes/Home.svelte';
-  import Dashboard from './routes/Dashboard.svelte';
-  import Login from './routes/Login.svelte';
-  import Register from './routes/Register.svelte';
-  import Faq from './routes/Faq.svelte';
-  import TopicSelect from './routes/exercise/TopicSelect.svelte';
-  import ExerciseRunner from './routes/exercise/ExerciseRunner.svelte';
-  import EndExercise from './routes/exercise/EndExercise.svelte';
-  import MyAnswers from './routes/my-answers/MyAnswers.svelte';
-  import TopicList from './routes/admin/TopicList.svelte';
-  import QuestionList from './routes/admin/QuestionList.svelte';
-  import StudentAnswers from './routes/admin/StudentAnswers.svelte';
-  import UsersManager from './routes/admin/database/UsersManager.svelte';
-  import AnswersManager from './routes/admin/database/AnswersManager.svelte';
 
   onMount(async () => {
     await authStore.init();
   });
 
+  const match = $derived(matchRoute(router.currentPath));
+
+  function guardSatisfied(guard: RouteGuard): boolean {
+    switch (guard) {
+      case 'public':
+        return true;
+      case 'guest-only':
+        return !authStore.isAuthenticated;
+      case 'auth':
+        return authStore.isAuthenticated;
+      case 'admin':
+        return authStore.isAuthenticated && authStore.isAdmin;
+    }
+  }
+
   // Route Guards
   $effect(() => {
-    if (authStore.isLoading) return;
+    if (authStore.isLoading || !match) return;
 
-    const path = router.currentPath;
-    const isGuestOnly = path === '/login' || path === '/register';
-    const isAuthRequired =
-      path === '/dashboard' ||
-      path.startsWith('/exercise') ||
-      path === '/endExercise' ||
-      path.startsWith('/myAnswers') ||
-      path.startsWith('/topics') ||
-      path.startsWith('/studentsAnswers') ||
-      path.startsWith('/database');
+    const guard = match.route.guard;
+    if (guardSatisfied(guard)) return;
 
-    const isAdminRequired =
-      path.startsWith('/topics') ||
-      path.startsWith('/studentsAnswers') ||
-      path.startsWith('/database');
-
-    if (authStore.isAuthenticated && isGuestOnly) {
+    if (guard === 'guest-only') {
       router.navigate('/dashboard');
-    } else if (!authStore.isAuthenticated && isAuthRequired) {
+    } else if (guard === 'auth') {
       router.navigate('/login');
-    } else if (authStore.isAuthenticated && !authStore.isAdmin && isAdminRequired) {
-      router.navigate('/dashboard');
+    } else if (guard === 'admin') {
+      router.navigate(authStore.isAuthenticated ? '/dashboard' : '/login');
     }
   });
 
   const isDashboardRoute = $derived(
-    router.currentPath === '/dashboard' ||
-    router.currentPath.startsWith('/exercise') ||
-    router.currentPath === '/endExercise' ||
-    router.currentPath.startsWith('/myAnswers') ||
-    router.currentPath.startsWith('/topics') ||
-    router.currentPath.startsWith('/studentsAnswers') ||
-    router.currentPath.startsWith('/database')
+    match?.route.layout === 'dashboard' && authStore.isAuthenticated
   );
 
-  const dashboardTitle = $derived.by(() => {
-    const path = router.currentPath;
-    if (path === '/dashboard') return 'Dashboard';
-    if (path === '/exercise') return 'Katalog Topik Latihan';
-    if (path.startsWith('/exercise/')) return 'Pengerjaan Latihan Soal';
-    if (path === '/endExercise') return 'Selesai Latihan';
-    if (path.startsWith('/myAnswers/')) return 'Hasil Evaluasi Jawaban';
-    if (path === '/topics') return 'Kelola Topik Pembelajaran';
-    if (path.startsWith('/topics/list/')) return 'Kelola Butir Soal';
-    if (path.startsWith('/studentsAnswers/')) return 'Matriks Jawaban Siswa';
-    if (path === '/database/users') return 'Database Pengguna';
-    if (path === '/database/answers') return 'Database Jawaban AI';
-    return 'Dashboard';
-  });
+  const dashboardTitle = $derived(match?.route.title ?? 'Dashboard');
 </script>
 
 {#if authStore.isLoading}
@@ -88,30 +57,16 @@
     <Spinner size="lg" />
     <p class="text-xs text-neutral-500 font-medium">Memverifikasi sesi pengguna...</p>
   </div>
-{:else if isDashboardRoute && authStore.isAuthenticated}
+{:else if match && !guardSatisfied(match.route.guard)}
+  <!-- Guard redirect in progress: never render protected content or flash the 404 -->
+  <div class="min-h-screen flex flex-col items-center justify-center gap-3 bg-neutral-50 text-neutral-900">
+    <Spinner size="lg" />
+    <p class="text-xs text-neutral-500 font-medium">Mengalihkan halaman...</p>
+  </div>
+{:else if isDashboardRoute}
   <!-- ==================== DASHBOARD & WORKSPACE (WITH SIDEBAR) ==================== -->
   <DashboardLayout title={dashboardTitle}>
-    {#if router.currentPath === '/dashboard'}
-      <Dashboard />
-    {:else if router.currentPath === '/exercise'}
-      <TopicSelect />
-    {:else if router.currentPath.startsWith('/exercise/')}
-      <ExerciseRunner topicId={router.params.topicId} />
-    {:else if router.currentPath === '/endExercise'}
-      <EndExercise />
-    {:else if router.currentPath.startsWith('/myAnswers/')}
-      <MyAnswers topicId={router.params.topicId} />
-    {:else if router.currentPath === '/topics'}
-      <TopicList />
-    {:else if router.currentPath.startsWith('/topics/list/')}
-      <QuestionList topicId={router.params.topicId} />
-    {:else if router.currentPath.startsWith('/studentsAnswers/')}
-      <StudentAnswers topicId={router.params.topicId} />
-    {:else if router.currentPath === '/database/users'}
-      <UsersManager />
-    {:else if router.currentPath === '/database/answers'}
-      <AnswersManager />
-    {/if}
+    <RouteView />
   </DashboardLayout>
   <Toast />
 {:else}
@@ -120,14 +75,8 @@
     <Navbar />
 
     <main class="flex-1">
-      {#if router.currentPath === '/'}
-        <Home />
-      {:else if router.currentPath === '/login'}
-        <Login />
-      {:else if router.currentPath === '/register'}
-        <Register />
-      {:else if router.currentPath === '/faq'}
-        <Faq />
+      {#if match}
+        <RouteView />
       {:else}
         <!-- 404 Not Found -->
         <div class="max-w-md mx-auto px-4 py-24 text-center space-y-4">

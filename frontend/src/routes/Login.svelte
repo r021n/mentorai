@@ -2,6 +2,7 @@
   import { authApi } from '../lib/api/auth';
   import { authStore } from '../lib/stores/auth.svelte';
   import { toast } from '../lib/stores/toast.svelte';
+  import { preloadRoute } from '../lib/utils/preloadRoute';
   import Input from '../lib/components/ui/Input.svelte';
   import Button from '../lib/components/ui/Button.svelte';
   import Spinner from '../lib/components/ui/Spinner.svelte';
@@ -88,7 +89,7 @@
     <div class="text-center pt-2 border-t border-neutral-200">
       <p class="text-xs text-neutral-600">
         Belum memiliki akun?
-        <a href="#/register" class="font-semibold text-neutral-950 hover:underline">
+        <a href="#/register" use:preloadRoute class="font-semibold text-neutral-950 hover:underline">
           Daftar di sini
         </a>
       </p>

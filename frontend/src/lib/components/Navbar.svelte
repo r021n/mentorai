@@ -1,6 +1,7 @@
 <script lang="ts">
   import { authStore } from '../stores/auth.svelte';
   import { router } from '../stores/router.svelte';
+  import { preloadRoute } from '../utils/preloadRoute';
   import { BookOpen, LogOut, Menu, X, ArrowRight, LayoutDashboard } from '@lucide/svelte';
 
   let isMobileMenuOpen = $state(false);
@@ -45,6 +46,7 @@
 
         <a
           href="#/faq"
+          use:preloadRoute
           class="text-xs font-semibold transition-colors hover:text-neutral-950 {router.currentPath === '/faq' ? 'text-neutral-950 underline underline-offset-8 decoration-2' : 'text-neutral-500'}"
         >
           Tentang Kami & FAQ
@@ -67,6 +69,7 @@
             <!-- Highlighted CTA to enter Dashboard -->
             <a
               href="#/dashboard"
+              use:preloadRoute
               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-950 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors shadow-xs"
             >
               <LayoutDashboard size={14} />
@@ -87,12 +90,14 @@
         {:else}
           <a
             href="#/login"
+            use:preloadRoute
             class="text-xs font-semibold px-4 py-2 text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 rounded-xl transition-colors"
           >
             Masuk
           </a>
           <a
             href="#/register"
+            use:preloadRoute
             class="text-xs font-semibold px-4 py-2 bg-neutral-950 text-white hover:bg-neutral-800 rounded-xl transition-colors shadow-xs"
           >
             Daftar Akun
@@ -131,6 +136,7 @@
       <a
         href="#/faq"
         onclick={closeMobileMenu}
+        use:preloadRoute
         class="block text-sm font-semibold py-2 text-neutral-800 hover:text-neutral-950"
       >
         Tentang Kami & FAQ
@@ -156,6 +162,7 @@
             <a
               href="#/dashboard"
               onclick={closeMobileMenu}
+              use:preloadRoute
               class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-neutral-950 text-white text-xs font-bold shadow-xs"
             >
               <LayoutDashboard size={15} />
@@ -167,6 +174,7 @@
             <a
               href="#/login"
               onclick={closeMobileMenu}
+              use:preloadRoute
               class="flex-1 text-center text-xs font-semibold py-2.5 border border-neutral-300 rounded-xl hover:bg-neutral-100 transition-colors"
             >
               Masuk
@@ -174,7 +182,8 @@
             <a
               href="#/register"
               onclick={closeMobileMenu}
-              class="flex-1 text-center text-xs font-semibold py-2.5 bg-neutral-950 text-white rounded-xl hover:bg-neutral-800 transition-colors"
+              use:preloadRoute
+              class="flex-1 text-center text-xs font-semibold py-2.5 bg-neutral-950 text-white rounded-xl hover:bg-neutral-800 transition-colors shadow-xs"
             >
               Daftar
             </a>

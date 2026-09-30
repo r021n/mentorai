@@ -1,5 +1,6 @@
 <script lang="ts">
   import { authStore } from '../lib/stores/auth.svelte';
+  import { preloadRoute } from '../lib/utils/preloadRoute';
   import {
     ShieldCheck,
     Sparkles,
@@ -38,6 +39,7 @@
       {#if authStore.isAuthenticated}
         <a
           href="#/dashboard"
+          use:preloadRoute
           class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-neutral-950 text-white font-semibold text-sm hover:bg-neutral-800 transition-all shadow-sm hover:shadow group"
         >
           <span>Buka Dashboard Utama</span>
@@ -45,6 +47,7 @@
         </a>
         <a
           href="#/exercise"
+          use:preloadRoute
           class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-neutral-900 font-semibold text-sm border border-neutral-300 hover:bg-neutral-100 transition-all shadow-xs"
         >
           <GraduationCap size={16} />
@@ -53,6 +56,7 @@
       {:else}
         <a
           href="#/register"
+          use:preloadRoute
           class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-neutral-950 text-white font-semibold text-sm hover:bg-neutral-800 transition-all shadow-sm hover:shadow group"
         >
           <span>Daftar Akun Siswa</span>
@@ -60,6 +64,7 @@
         </a>
         <a
           href="#/login"
+          use:preloadRoute
           class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-neutral-900 font-semibold text-sm border border-neutral-300 hover:bg-neutral-100 transition-all shadow-xs"
         >
           <span>Masuk ke Akun</span>
@@ -283,6 +288,7 @@
         {#if authStore.isAuthenticated}
           <a
             href="#/dashboard"
+            use:preloadRoute
             class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-neutral-950 font-bold text-xs hover:bg-neutral-100 transition-colors shadow-xs"
           >
             <span>Buka Dashboard</span>
@@ -291,6 +297,7 @@
         {:else}
           <a
             href="#/register"
+            use:preloadRoute
             class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-neutral-950 font-bold text-xs hover:bg-neutral-100 transition-colors shadow-xs"
           >
             <span>Daftar Akun Baru</span>
@@ -298,6 +305,7 @@
           </a>
           <a
             href="#/login"
+            use:preloadRoute
             class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-800 text-white font-bold text-xs hover:bg-neutral-700 transition-colors"
           >
             <span>Masuk Akun</span>

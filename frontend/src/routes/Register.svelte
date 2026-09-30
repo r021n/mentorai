@@ -1,6 +1,7 @@
 <script lang="ts">
   import { authApi } from '../lib/api/auth';
   import { toast } from '../lib/stores/toast.svelte';
+  import { preloadRoute } from '../lib/utils/preloadRoute';
   import Input from '../lib/components/ui/Input.svelte';
   import Button from '../lib/components/ui/Button.svelte';
   import Spinner from '../lib/components/ui/Spinner.svelte';
@@ -110,7 +111,7 @@
     <div class="text-center pt-2 border-t border-neutral-200">
       <p class="text-xs text-neutral-600">
         Sudah memiliki akun?
-        <a href="#/login" class="font-semibold text-neutral-950 hover:underline">
+        <a href="#/login" use:preloadRoute class="font-semibold text-neutral-950 hover:underline">
           Masuk di sini
         </a>
       </p>

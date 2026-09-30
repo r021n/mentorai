@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import { authStore } from '../../stores/auth.svelte';
   import { router } from '../../stores/router.svelte';
+  import { preloadRoute } from '../../utils/preloadRoute';
   import {
     LayoutDashboard,
     BookOpen,
@@ -130,6 +131,7 @@
         <a
           href="#/dashboard"
           onclick={closeMobileSidebar}
+          use:preloadRoute
           title="Dashboard"
           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all {isDashboardActive
             ? 'bg-neutral-950 text-white shadow-xs'
@@ -144,6 +146,7 @@
         <a
           href="#/exercise"
           onclick={closeMobileSidebar}
+          use:preloadRoute
           title="Katalog Latihan Soal"
           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all {isExerciseActive
             ? 'bg-neutral-950 text-white shadow-xs'
@@ -168,6 +171,7 @@
           <a
             href="#/topics"
             onclick={closeMobileSidebar}
+            use:preloadRoute
             title="Kelola Topik & Soal"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all {isTopicsActive
               ? 'bg-neutral-950 text-white shadow-xs'
@@ -182,6 +186,7 @@
           <a
             href="#/database/users"
             onclick={closeMobileSidebar}
+            use:preloadRoute
             title="Database Pengguna"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all {isUsersActive
               ? 'bg-neutral-950 text-white shadow-xs'
@@ -196,6 +201,7 @@
           <a
             href="#/database/answers"
             onclick={closeMobileSidebar}
+            use:preloadRoute
             title="Database Log Jawaban"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all {isAnswersActive
               ? 'bg-neutral-950 text-white shadow-xs'
@@ -233,6 +239,7 @@
         <a
           href="#/faq"
           onclick={closeMobileSidebar}
+          use:preloadRoute
           title="Bantuan & FAQ"
           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 transition-all"
         >

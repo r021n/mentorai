@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Award, ArrowRight, Home, BookOpen } from '@lucide/svelte';
   import { exerciseStore } from '../../lib/stores/exercise.svelte';
+  import { preloadRoute } from '../../lib/utils/preloadRoute';
 </script>
 
 <div class="max-w-xl mx-auto px-4 py-16 text-center space-y-8">
@@ -22,6 +23,7 @@
       {#if exerciseStore.topicId}
         <a
           href="#/myAnswers/{exerciseStore.topicId}"
+          use:preloadRoute
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-neutral-900 text-white text-xs font-semibold rounded-lg hover:bg-neutral-800 transition-colors"
         >
           <span>Lihat Nilai Saya</span>
@@ -31,6 +33,7 @@
 
       <a
         href="#/exercise"
+        use:preloadRoute
         class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-neutral-900 text-xs font-semibold rounded-lg border border-neutral-300 hover:bg-neutral-100 transition-colors"
       >
         <BookOpen size={15} />

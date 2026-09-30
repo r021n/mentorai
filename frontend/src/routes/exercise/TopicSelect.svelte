@@ -3,6 +3,7 @@
   import { exerciseApi } from '../../lib/api/exercise';
   import type { Topic } from '../../lib/types/topic.types';
   import { toast } from '../../lib/stores/toast.svelte';
+  import { preloadRoute } from '../../lib/utils/preloadRoute';
   import Spinner from '../../lib/components/ui/Spinner.svelte';
   import { BookOpen, Play, CheckCircle2, AlertCircle } from '@lucide/svelte';
 
@@ -78,6 +79,7 @@
           <div class="pt-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center gap-2.5">
             <a
               href="#/exercise/{topic.id}"
+              use:preloadRoute
               class="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-neutral-900 text-white text-xs font-semibold rounded-lg hover:bg-neutral-800 transition-colors"
             >
               <Play size={14} />
@@ -86,6 +88,7 @@
 
             <a
               href="#/myAnswers/{topic.id}"
+              use:preloadRoute
               class="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-neutral-900 text-xs font-semibold rounded-lg border border-neutral-300 hover:bg-neutral-100 transition-colors"
             >
               <CheckCircle2 size={14} />

@@ -1,9 +1,5 @@
 import { SvelteURLSearchParams } from 'svelte/reactivity';
-
-export interface RouteMatch {
-  pattern: string;
-  params: Record<string, string>;
-}
+import { matchRoute } from '../routes';
 
 export class RouterState {
   currentHash = $state<string>('');
@@ -39,36 +35,7 @@ export class RouterState {
     this.currentHash = window.location.hash;
     this.currentPath = path;
     this.query = query;
-    this.params = this.matchParams(path);
-  }
-
-  private matchParams(path: string): Record<string, string> {
-    const patterns = [
-      '/exercise/:topicId',
-      '/myAnswers/:topicId',
-      '/topics/list/:topicId',
-      '/studentsAnswers/:topicId',
-    ];
-
-    for (const pattern of patterns) {
-      const patternParts = pattern.split('/');
-      const pathParts = path.split('/');
-      if (patternParts.length === pathParts.length) {
-        let match = true;
-        const extracted: Record<string, string> = {};
-        for (let i = 0; i < patternParts.length; i++) {
-          if (patternParts[i].startsWith(':')) {
-            const key = patternParts[i].slice(1);
-            extracted[key] = pathParts[i];
-          } else if (patternParts[i] !== pathParts[i]) {
-            match = false;
-            break;
-          }
-        }
-        if (match) return extracted;
-      }
-    }
-    return {};
+    this.params = matchRoute(path)?.params ?? {};
   }
 
   navigate(path: string) {
