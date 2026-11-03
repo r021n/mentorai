@@ -8,7 +8,6 @@ import {
   GraduationCap,
   Lock,
   ShieldCheck,
-  Sparkles,
   Users,
   Zap,
 } from 'lucide-react'
@@ -23,7 +22,7 @@ const highlights = [
   {
     icon: Brain,
     title: 'AI Dua Tahap',
-    description: 'Feedback mendalam + skor 0-3',
+    description: 'Feedback mendalam dan skor 0-3',
   },
   {
     icon: FileSpreadsheet,
@@ -40,19 +39,19 @@ const highlights = [
 const features = [
   {
     icon: ShieldCheck,
-    title: 'Integritas & Anti-Cheat Cerdas',
+    title: 'Integritas dan anti-cheat cerdas',
     description:
       'Menonaktifkan copy, cut, dan paste pada textarea soal dan jawaban. Siswa distimulasi untuk menyusun kalimat penalaran secara orisinal dari pemikiran sendiri.',
   },
   {
-    icon: Sparkles,
-    title: 'Evaluasi Bertingkat Berbasis AI',
+    icon: Brain,
+    title: 'Evaluasi bertingkat berbasis AI',
     description:
       'Model AI menganalisis ketepatan konsep, kelengkapan argumentasi, serta memberikan koreksi konstruktif disertai skor standar rubrik 0 sampai 3 untuk setiap butir soal.',
   },
   {
     icon: BarChart3,
-    title: 'Matriks & Rekap Nilai Otomatis',
+    title: 'Matriks dan rekap nilai otomatis',
     description:
       'Siswa dapat mengkaji kembali catatan evaluasi terdahulu, sementara administrator dapat memantau matriks nilai kelas serta mengunduh rekap berformat .xlsx dengan satu klik.',
   },
@@ -61,18 +60,19 @@ const features = [
 const steps = [
   {
     step: 1,
-    title: 'Pilih Topik Latihan',
+    title: 'Pilih topik latihan',
     description:
       'Buka katalog latihan dari dashboard dan pilih materi yang ingin dipelajari sesuai silabus.',
   },
   {
     step: 2,
-    title: 'Jawab Pertanyaan Konseptual',
-    description: 'Ketik uraian jawaban secara mandiri pada antarmuka latihan yang dirancang fokus dan bersih.',
+    title: 'Jawab pertanyaan konseptual',
+    description:
+      'Ketik uraian jawaban secara mandiri pada antarmuka latihan yang dirancang fokus dan bersih.',
   },
   {
     step: 3,
-    title: 'Evaluasi & Telaah Feedback AI',
+    title: 'Evaluasi dan telaah feedback AI',
     description:
       'AI memberikan koreksi seketika dan catatan peningkatan untuk menyempurnakan pemahaman Anda.',
   },
@@ -94,231 +94,225 @@ export function HomePage() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
 
   return (
-    <div className="space-y-24 py-8 sm:py-16">
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-300 bg-white text-xs font-semibold text-neutral-800 shadow-xs">
-          <Sparkles size={14} className="text-neutral-950" />
-          <span>Platform Evaluasi Pembelajaran Berbasis AI Generasi 2026</span>
-        </div>
+    <div className="bg-white">
+      {/* ================= HERO ================= */}
+      <section className="border-b border-neutral-200 bg-teal-50/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-950 text-balance leading-[1.15]">
+              Evaluasi pemahaman belajar secara mandiri,{' '}
+              <span className="text-teal-700">akurat, dan berintegritas</span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-base sm:text-lg text-neutral-600 leading-relaxed text-pretty">
+              MentorAI mendampingi siswa merumuskan pemahaman konseptual secara mandiri dengan feedback
+              AI objektif, proteksi anti-copy paste, serta rekapitulasi analitik komprehensif bagi
+              pengajar.
+            </p>
 
-        <div className="space-y-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-950 leading-[1.15]">
-            Evaluasi Pemahaman Belajar Secara Mandiri, Akurat, & Berintegritas
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed">
-            MentorAI mendampingi siswa merumuskan pemahaman konseptual secara mandiri dengan feedback AI
-            objektif, proteksi anti-copy paste, serta rekapitulasi analitik komprehensif bagi pengajar.
-          </p>
-        </div>
-
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
-          {isAuthenticated ? (
-            <>
-              <Link
-                to="/dashboard"
-                preload="intent"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-neutral-950 text-white font-semibold text-sm hover:bg-neutral-800 transition-all shadow-sm hover:shadow group"
-              >
-                <span>Buka Dashboard Utama</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/exercise"
-                preload="intent"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-neutral-900 font-semibold text-sm border border-neutral-300 hover:bg-neutral-100 transition-all shadow-xs"
-              >
-                <GraduationCap size={16} />
-                <span>Katalog Latihan Soal</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/register"
-                preload="intent"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-neutral-950 text-white font-semibold text-sm hover:bg-neutral-800 transition-all shadow-sm hover:shadow group"
-              >
-                <span>Daftar Akun Siswa</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/login"
-                preload="intent"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-neutral-900 font-semibold text-sm border border-neutral-300 hover:bg-neutral-100 transition-all shadow-xs"
-              >
-                <span>Masuk ke Akun</span>
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto text-left">
-          {highlights.map((item) => (
-            <div key={item.title} className="p-3.5 rounded-xl bg-white border border-neutral-200 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-950">
-                <item.icon size={14} className="text-neutral-900" />
-                <span>{item.title}</span>
-              </div>
-              <p className="text-[11px] text-neutral-500">{item.description}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    preload="intent"
+                    className="group inline-flex items-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition-colors"
+                  >
+                    <span>Buka dashboard utama</span>
+                    <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                  <Link
+                    to="/exercise"
+                    preload="intent"
+                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-5 py-3 text-sm font-semibold text-neutral-900 hover:border-teal-600 hover:text-teal-800 transition-colors"
+                  >
+                    <GraduationCap size={16} />
+                    <span>Katalog latihan soal</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    preload="intent"
+                    className="group inline-flex items-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition-colors"
+                  >
+                    <span>Daftar akun siswa</span>
+                    <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                  <Link
+                    to="/login"
+                    preload="intent"
+                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-5 py-3 text-sm font-semibold text-neutral-900 hover:border-teal-600 hover:text-teal-800 transition-colors"
+                  >
+                    <span>Masuk ke akun</span>
+                  </Link>
+                </>
+              )}
             </div>
-          ))}
+          </div>
+
+          <dl className="mt-14 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+            {highlights.map((item) => (
+              <div key={item.title} className="border-t border-neutral-300 pt-4">
+                <dt className="flex items-center gap-2 text-sm font-semibold text-neutral-950">
+                  <item.icon size={16} className="shrink-0 text-teal-700" />
+                  <span>{item.title}</span>
+                </dt>
+                <dd className="mt-1 text-base text-neutral-600 leading-relaxed">{item.description}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-            Keunggulan Sistem
-          </span>
-          <h2 className="text-3xl font-extrabold text-neutral-950 tracking-tight">
-            Dirancang Khusus untuk Menguji Pemahaman Murni
+      {/* ================= FEATURES ================= */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 text-balance">
+            Dirancang khusus untuk menguji pemahaman murni
           </h2>
-          <p className="text-sm text-neutral-600">
-            MentorAI mengintegrasikan proteksi integritas akademik dengan kecerdasan buatan untuk
-            menciptakan proses belajar yang terarah dan bermakna.
+          <p className="mt-3 text-base text-neutral-600 leading-relaxed text-pretty">
+            MentorAI memadukan proteksi integritas akademik dengan kecerdasan buatan agar proses belajar
+            tetap terarah dan bermakna.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-10 border-y border-neutral-200 divide-y divide-neutral-200">
           {features.map((item) => (
-            <div
+            <article
               key={item.title}
-              className="bg-white border border-neutral-200 rounded-2xl p-7 space-y-4 hover:border-neutral-950 transition-colors"
+              className="grid gap-3 py-6 sm:grid-cols-[minmax(0,18rem)_1fr] sm:gap-10"
             >
-              <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-950">
-                <item.icon size={24} />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-neutral-950">{item.title}</h3>
-                <p className="text-xs text-neutral-600 leading-relaxed">{item.description}</p>
-              </div>
-            </div>
+              <h3 className="flex items-start gap-2.5 text-base font-semibold text-neutral-950 text-pretty">
+                <item.icon size={18} className="mt-0.5 shrink-0 text-teal-700" />
+                <span>{item.title}</span>
+              </h3>
+              <p className="text-base text-neutral-600 leading-relaxed text-pretty">
+                {item.description}
+              </p>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="bg-neutral-100/70 border-y border-neutral-200 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="text-center space-y-3 max-w-xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-              Alur Belajar Siswa
-            </span>
-            <h2 className="text-3xl font-extrabold text-neutral-950 tracking-tight">
-              3 Langkah Mudah Memulai Belajar
+      {/* ================= STEPS ================= */}
+      <section className="border-y border-neutral-200 bg-neutral-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 text-balance">
+              Tiga langkah mudah memulai belajar
             </h2>
-            <p className="text-sm text-neutral-600">
+            <p className="mt-3 text-base text-neutral-600 leading-relaxed text-pretty">
               Proses interaktif yang intuitif, mendidik, dan bebas dari kebingungan navigasi.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <ol className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {steps.map((item) => (
-              <div key={item.step} className="bg-white border border-neutral-200 rounded-2xl p-6 space-y-3">
-                <div className="w-8 h-8 rounded-full bg-neutral-950 text-white font-extrabold text-xs flex items-center justify-center">
-                  {item.step}
-                </div>
-                <h3 className="text-base font-bold text-neutral-950">{item.title}</h3>
-                <p className="text-xs text-neutral-600 leading-relaxed">{item.description}</p>
-              </div>
+              <li key={item.step} className="border-t border-teal-600 pt-4">
+                <span className="text-sm font-semibold text-teal-700">Langkah {item.step}</span>
+                <h3 className="mt-2 text-base font-semibold text-neutral-950 text-pretty">
+                  {item.title}
+                </h3>
+                <p className="mt-1.5 text-base text-neutral-600 leading-relaxed text-pretty">
+                  {item.description}
+                </p>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center space-y-3 max-w-xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-            Dirancang Untuk Dua Peran
-          </span>
-          <h2 className="text-3xl font-extrabold text-neutral-950 tracking-tight">
-            Satu Platform, Solusi untuk Seluruh Kelas
+      {/* ================= ROLES ================= */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 text-balance">
+            Satu platform untuk siswa dan pengajar
           </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white border border-neutral-200 rounded-2xl p-8 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-950">
-                <GraduationCap size={22} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-neutral-950">Bagi Siswa</h3>
-                <p className="text-xs text-neutral-500">Pengalaman belajar mandiri & interaktif</p>
-              </div>
-            </div>
-
-            <ul className="space-y-3 text-xs text-neutral-700">
-              {studentBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white border border-neutral-200 rounded-2xl p-8 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-neutral-950 text-white flex items-center justify-center">
-                <Users size={22} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-neutral-950">Bagi Pengajar & Administrator</h3>
-                <p className="text-xs text-neutral-500">Efisiensi pemeriksaan & analitik kelas</p>
-              </div>
-            </div>
-
-            <ul className="space-y-3 text-xs text-neutral-700">
-              {teacherBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-neutral-950 shrink-0 mt-0.5" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-neutral-950 text-white p-8 sm:p-12 text-center space-y-6 shadow-md">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
-            Mulai Evaluasi Pembelajaran Berkualitas Hari Ini
-          </h2>
-          <p className="text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto leading-relaxed">
-            Masuk ke akun Anda atau daftarkan akun siswa baru untuk merasakan kemudahan belajar bersama
-            MentorAI.
+          <p className="mt-3 text-base text-neutral-600 leading-relaxed text-pretty">
+            Setiap peran mendapat alur kerja yang sesuai, tanpa fitur yang saling mengganggu.
           </p>
+        </div>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
-            {isAuthenticated ? (
-              <Link
-                to="/dashboard"
-                preload="intent"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-neutral-950 font-bold text-xs hover:bg-neutral-100 transition-colors shadow-xs"
-              >
-                <span>Buka Dashboard</span>
-                <ArrowRight size={14} />
-              </Link>
-            ) : (
-              <>
+        <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-0 md:divide-x md:divide-neutral-200">
+          <div className="md:pr-10">
+            <h3 className="flex items-center gap-2.5 text-lg font-semibold text-neutral-950">
+              <GraduationCap size={20} className="shrink-0 text-teal-700" />
+              <span>Bagi siswa</span>
+            </h3>
+            <p className="mt-1 text-base text-neutral-600">Pengalaman belajar mandiri dan interaktif.</p>
+
+            <ul className="mt-5 space-y-3">
+              {studentBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-2.5 text-base text-neutral-700">
+                  <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-teal-700" />
+                  <span className="leading-relaxed text-pretty">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="border-t border-neutral-200 pt-10 md:border-t-0 md:pt-0 md:pl-10">
+            <h3 className="flex items-center gap-2.5 text-lg font-semibold text-neutral-950">
+              <Users size={20} className="shrink-0 text-amber-700" />
+              <span>Bagi pengajar dan administrator</span>
+            </h3>
+            <p className="mt-1 text-base text-neutral-600">Efisiensi pemeriksaan dan analitik kelas.</p>
+
+            <ul className="mt-5 space-y-3">
+              {teacherBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-2.5 text-base text-neutral-700">
+                  <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-amber-700" />
+                  <span className="leading-relaxed text-pretty">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= CTA ================= */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="rounded-xl bg-teal-800 px-6 py-10 sm:px-10 sm:py-12">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white text-balance">
+              Mulai evaluasi pembelajaran berkualitas hari ini
+            </h2>
+            <p className="mt-3 text-base text-teal-50 leading-relaxed text-pretty">
+              Masuk ke akun Anda atau daftarkan akun siswa baru untuk merasakan kemudahan belajar bersama
+              MentorAI.
+            </p>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              {isAuthenticated ? (
                 <Link
-                  to="/register"
+                  to="/dashboard"
                   preload="intent"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-neutral-950 font-bold text-xs hover:bg-neutral-100 transition-colors shadow-xs"
+                  className="group inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-teal-800 hover:bg-teal-50 transition-colors"
                 >
-                  <span>Daftar Akun Baru</span>
-                  <ArrowRight size={14} />
+                  <span>Buka dashboard</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                 </Link>
-                <Link
-                  to="/login"
-                  preload="intent"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-800 text-white font-bold text-xs hover:bg-neutral-700 transition-colors"
-                >
-                  <span>Masuk Akun</span>
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    preload="intent"
+                    className="group inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-teal-800 hover:bg-teal-50 transition-colors"
+                  >
+                    <span>Daftar akun baru</span>
+                    <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                  <Link
+                    to="/login"
+                    preload="intent"
+                    className="inline-flex items-center gap-2 rounded-lg border border-teal-300/60 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
+                  >
+                    <span>Masuk akun</span>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
