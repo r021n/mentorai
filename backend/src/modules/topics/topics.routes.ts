@@ -80,12 +80,17 @@ topicRoutes.delete("/:id", requireAdmin, async (c) => {
     return sendError(c, "ID topik tidak valid", 400);
   }
 
-  const deleted = await topicService.deleteTopic(id);
-  if (!deleted) {
-    return sendError(c, "Topik tidak ditemukan", 404);
-  }
+  try {
+    const deleted = await topicService.deleteTopic(id);
+    if (!deleted) {
+      return sendError(c, "Topik tidak ditemukan", 404);
+    }
 
-  return sendSuccess(c, undefined, "Topik berhasil dihapus");
+    return sendSuccess(c, undefined, "Topik berhasil dihapus");
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus topik";
+    return sendError(c, message, 500);
+  }
 });
 
 export default topicRoutes;

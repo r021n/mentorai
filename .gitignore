@@ -1,0 +1,29 @@
+# OS metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment & Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Database & Backups
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.backup*
+
+# Dependencies & Build artifacts
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.log
