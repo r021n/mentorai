@@ -63,10 +63,10 @@ src/
 │   ├── router/           # route guards + page title
 │   ├── stores/           # zustand: auth, toast, exercise
 │   ├── types/            # tipe domain
-│   └── utils/            # cn, validation, typewriter
+│   └── utils/            # cn, validation, exercise draft
 └── test/setup.ts         # Testing Library setup
 tests/
-├── unit/                 # validation, typewriter, stores, komponen Toast
+├── unit/                 # validation, stores, komponen Toast, draft latihan
 └── integration/          # API client, smoke test aplikasi, route guards
 ```
 

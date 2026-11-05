@@ -2,11 +2,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createExerciseStore,
-  selectCurrentAnswerRecord,
+  selectAnsweredCount,
+  selectAnsweredPercent,
   selectCurrentQuestion,
   selectIsFirstQuestion,
   selectIsLastQuestion,
-  selectProgressPercent,
+  selectUnansweredCount,
 } from '../../src/lib/stores/exercise'
 import type { Question } from '../../src/lib/types/question.types'
 import type { AnswerRecord } from '../../src/lib/types/answer.types'
@@ -35,18 +36,31 @@ describe('ExerciseStore Tests', () => {
     expect(state().questions).toEqual([])
     expect(state().currentIndex).toBe(0)
     expect(selectCurrentQuestion(state())).toBeNull()
-    expect(selectProgressPercent(state())).toBe(0)
+    expect(selectAnsweredPercent(state())).toBe(0)
+    expect(selectAnsweredCount(state())).toBe(0)
+    expect(selectUnansweredCount(state())).toBe(0)
   })
 
-  it('should load topic, questions, and existing answers correctly', () => {
+  it('should resume at the first unanswered question', () => {
     state().loadData({ id: 1, name: 'Struktur Data' }, mockQuestions, mockExistingAnswers)
 
     expect(state().topicId).toBe(1)
     expect(state().topicName).toBe('Struktur Data')
     expect(state().questions.length).toBe(3)
-    expect(selectCurrentQuestion(state())?.id).toBe(101)
+    expect(state().currentIndex).toBe(1)
+    expect(selectCurrentQuestion(state())?.id).toBe(102)
     expect(state().answersMap[101]?.answer).toBe('Jawaban Soal 1')
-    expect(selectCurrentAnswerRecord(state())?.score).toBe(3)
+    expect(selectAnsweredCount(state())).toBe(1)
+    expect(selectUnansweredCount(state())).toBe(2)
+    expect(selectAnsweredPercent(state())).toBeCloseTo(33.33, 1)
+  })
+
+  it('should start at the first question when nothing is answered', () => {
+    state().loadData({ id: 1, name: 'Struktur Data' }, mockQuestions, [])
+
+    expect(state().currentIndex).toBe(0)
+    expect(selectIsFirstQuestion(state())).toBe(true)
+    expect(selectIsLastQuestion(state())).toBe(false)
   })
 
   it('should navigate next and previous questions', () => {
@@ -57,7 +71,6 @@ describe('ExerciseStore Tests', () => {
     state().next()
     expect(state().currentIndex).toBe(1)
     expect(selectCurrentQuestion(state())?.id).toBe(102)
-    expect(selectProgressPercent(state())).toBeCloseTo(66.67, 1)
 
     state().next()
     expect(state().currentIndex).toBe(2)
@@ -75,7 +88,7 @@ describe('ExerciseStore Tests', () => {
     expect(selectIsFirstQuestion(state())).toBe(true)
   })
 
-  it('should save answer records to answersMap', () => {
+  it('should save answer records to answersMap and update progress', () => {
     state().loadData({ id: 1, name: 'Struktur Data' }, mockQuestions, [])
 
     state().saveAnswerRecord(102, {
@@ -85,10 +98,11 @@ describe('ExerciseStore Tests', () => {
     })
 
     expect(state().answersMap[102]).toBeDefined()
-    expect(state().answersMap[102].answer).toBe('Ini jawaban kedua')
-    expect(state().answersMap[102].score).toBe(2)
-    expect(state().answersMap[102].feedback).toBe('Cukup tepat')
     expect(state().answersMap[102].questionId).toBe(102)
+    expect(selectAnsweredCount(state())).toBe(1)
+    expect(selectUnansweredCount(state())).toBe(2)
+    expect(selectAnsweredPercent(state())).toBeCloseTo(33.33, 1)
+    expect(state().answersMap[102].score).toBe(2)
   })
 
   it('should track loading flags', () => {

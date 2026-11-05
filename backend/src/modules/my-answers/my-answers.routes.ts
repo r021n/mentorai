@@ -17,6 +17,10 @@ myAnswersRoutes.get("/:topicId", async (c) => {
   const user = c.get("user");
   const data = await myAnswersService.getStudentAnswersSummary(topicId, user.id);
 
+  if (!data) {
+    return sendError(c, "Topik tidak ditemukan", 404);
+  }
+
   return sendSuccess(c, data);
 });
 

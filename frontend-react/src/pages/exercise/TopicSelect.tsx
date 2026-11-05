@@ -1,11 +1,22 @@
-import { useEffect } from 'react'
-import { Link } from '@tanstack/react-router'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { AlertCircle, BookOpen, CheckCircle2, Play } from 'lucide-react'
+import { AlertCircle, BookOpen, Search } from 'lucide-react'
 import { exerciseApi } from '../../lib/api/exercise'
 import { queryKeys } from '../../lib/query/query-keys'
 import { toast } from '../../lib/stores/toast'
-import { Spinner } from '../../lib/components/ui/Spinner'
+import type { ExerciseTopicStatus } from '../../lib/types/topic.types'
+import { ExerciseTopicList } from '../../lib/components/exercise/ExerciseTopicList'
+import { Button } from '../../lib/components/ui/Button'
+import { cn } from '../../lib/utils/cn'
+
+type TopicFilter = 'all' | Exclude<ExerciseTopicStatus, 'empty'>
+
+const FILTERS: Array<{ value: TopicFilter; label: string }> = [
+  { value: 'all', label: 'Semua' },
+  { value: 'not_started', label: 'Belum dimulai' },
+  { value: 'in_progress', label: 'Sedang berjalan' },
+  { value: 'completed', label: 'Selesai' },
+]
 
 export function TopicSelectPage() {
   const { data: topics = [], isPending, isError, error, refetch } = useQuery({
@@ -13,93 +24,156 @@ export function TopicSelectPage() {
     queryFn: () => exerciseApi.getExerciseTopics(),
   })
 
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<TopicFilter>('all')
+
   useEffect(() => {
     if (isError) {
       toast.error((error as Error)?.message || 'Gagal memuat topik latihan.')
     }
   }, [isError, error])
 
+  const completedCount = topics.filter((topic) => topic.status === 'completed').length
+  const inProgressCount = topics.filter((topic) => topic.status === 'in_progress').length
+
+  const filteredTopics = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
+
+    return topics.filter((topic) => {
+      const matchesSearch =
+        normalizedSearch.length === 0 || topic.name.toLowerCase().includes(normalizedSearch)
+      const matchesStatus = filter === 'all' || topic.status === filter
+      return matchesSearch && matchesStatus
+    })
+  }, [topics, search, filter])
+
+  const hasActiveFilter = search.trim().length > 0 || filter !== 'all'
+
+  function resetFilters() {
+    setSearch('')
+    setFilter('all')
+  }
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-neutral-200">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-950">Katalog Topik Latihan</h1>
-          <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-            Pilih topik untuk menguji pemahaman konsep atau melihat catatan evaluasi sebelumnya.
+          <h1 className="text-xl font-bold tracking-tight text-neutral-950 sm:text-2xl">
+            Pilih Topik Latihan
+          </h1>
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-neutral-600">
+            Lanjutkan materi yang sedang berjalan atau mulai topik baru. Progres Anda tersimpan
+            otomatis.
           </p>
         </div>
-      </div>
+
+        {topics.length > 0 ? (
+          <p className="text-xs font-medium text-neutral-600">
+            <span className="font-semibold text-neutral-950">{topics.length}</span> topik
+            {completedCount > 0 ? ` · ${completedCount} selesai` : null}
+            {inProgressCount > 0 ? ` · ${inProgressCount} berjalan` : null}
+          </p>
+        ) : null}
+      </header>
 
       {isPending ? (
-        <div className="py-20 flex flex-col items-center justify-center gap-3">
-          <Spinner size="lg" />
-          <p className="text-xs text-neutral-500">Memuat topik latihan...</p>
-        </div>
+        <TopicListSkeleton />
       ) : isError ? (
-        <div className="p-6 bg-white border border-neutral-300 rounded-xl text-center space-y-3">
+        <div className="space-y-3 rounded-2xl border border-neutral-300 bg-white p-6 text-center">
           <AlertCircle size={28} className="mx-auto text-neutral-900" />
           <p className="text-sm font-semibold text-neutral-900">
             {(error as Error)?.message || 'Gagal memuat topik latihan.'}
           </p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="text-xs px-4 py-2 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
-          >
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
             Muat Ulang
-          </button>
+          </Button>
         </div>
       ) : topics.length === 0 ? (
-        <div className="py-16 text-center bg-white border border-neutral-200 rounded-xl p-8 space-y-3">
+        <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-10 text-center">
           <BookOpen size={32} className="mx-auto text-neutral-400" />
-          <h3 className="text-base font-semibold text-neutral-900">Belum Ada Topik Tersedia</h3>
-          <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+          <h2 className="text-base font-semibold text-neutral-900">Belum Ada Topik Tersedia</h2>
+          <p className="mx-auto max-w-sm text-sm text-neutral-600">
             Administrator belum menambahkan materi atau topik latihan. Silakan cek kembali beberapa
             saat lagi.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {topics.map((topic) => (
-            <div
-              key={topic.id}
-              className="bg-white border border-neutral-200 rounded-xl p-6 flex flex-col justify-between space-y-5 hover:border-neutral-900 transition-colors"
-            >
-              <div className="space-y-2">
-                <div className="w-10 h-10 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-900">
-                  <BookOpen size={18} />
-                </div>
-                <h3 className="text-base font-bold text-neutral-950 leading-snug">{topic.name}</h3>
-                {topic.questionCount !== undefined ? (
-                  <p className="text-xs text-neutral-500">{topic.questionCount} Butir Soal Tersedia</p>
-                ) : null}
-              </div>
-
-              <div className="pt-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center gap-2.5">
-                <Link
-                  to="/exercise/$topicId"
-                  params={{ topicId: String(topic.id) }}
-                  preload="intent"
-                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-neutral-900 text-white text-xs font-semibold rounded-lg hover:bg-neutral-800 transition-colors"
-                >
-                  <Play size={14} />
-                  <span>Mulai Latihan</span>
-                </Link>
-
-                <Link
-                  to="/myAnswers/$topicId"
-                  params={{ topicId: String(topic.id) }}
-                  preload="intent"
-                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-neutral-900 text-xs font-semibold rounded-lg border border-neutral-300 hover:bg-neutral-100 transition-colors"
-                >
-                  <CheckCircle2 size={14} />
-                  <span>Lihat Jawabanku</span>
-                </Link>
-              </div>
+        <>
+          <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative flex-1 lg:max-w-xs">
+              <Search
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Cari topik..."
+                aria-label="Cari topik latihan"
+                className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+              />
             </div>
-          ))}
-        </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {FILTERS.map((item) => {
+                const isActive = filter === item.value
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => setFilter(item.value)}
+                    className={cn(
+                      'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2',
+                      isActive
+                        ? 'bg-neutral-900 text-white'
+                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200',
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {filteredTopics.length === 0 ? (
+            <div className="space-y-3 rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center">
+              <Search size={28} className="mx-auto text-neutral-400" />
+              <h2 className="text-base font-semibold text-neutral-900">
+                Tidak ada topik yang cocok
+              </h2>
+              <p className="mx-auto max-w-sm text-sm text-neutral-600">
+                Coba kata kunci lain atau tampilkan semua topik.
+              </p>
+              {hasActiveFilter ? (
+                <Button variant="outline" size="sm" onClick={resetFilters}>
+                  Reset Filter
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <ExerciseTopicList topics={filteredTopics} />
+          )}
+        </>
       )}
+    </div>
+  )
+}
+
+function TopicListSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+      <div className="divide-y divide-neutral-200">
+        {[0, 1, 2, 3].map((row) => (
+          <div key={row} className="flex items-center gap-4 px-5 py-5">
+            <div className="h-4 w-40 animate-pulse rounded bg-neutral-100" />
+            <div className="h-2 w-28 animate-pulse rounded-full bg-neutral-100" />
+            <div className="ml-auto h-8 w-24 animate-pulse rounded-lg bg-neutral-100" />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

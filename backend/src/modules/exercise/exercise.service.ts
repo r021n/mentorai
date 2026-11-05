@@ -1,10 +1,52 @@
 import { db } from "../../db/index.js";
 import { topics, questions, answers } from "../../db/schema.js";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { evaluateStudentAnswer } from "../../services/gemini.service.js";
+import { computeTopicProgress } from "./exercise.stats.js";
 
-export async function getExerciseTopics() {
-  return db.select().from(topics).orderBy(asc(topics.id));
+export async function getExerciseTopics(userId: number) {
+  const questionStats = db
+    .select({
+      topicId: questions.topicId,
+      questionCount: sql<number>`count(${questions.id})`.as("question_count"),
+    })
+    .from(questions)
+    .groupBy(questions.topicId)
+    .as("question_stats");
+
+  const answerStats = db
+    .select({
+      topicId: answers.topicId,
+      answeredCount: sql<number>`count(distinct ${answers.questionId})`.as("answered_count"),
+      totalScore: sql<number>`coalesce(sum(${answers.score}), 0)`.as("total_score"),
+    })
+    .from(answers)
+    .where(eq(answers.userId, userId))
+    .groupBy(answers.topicId)
+    .as("answer_stats");
+
+  const rows = await db
+    .select({
+      id: topics.id,
+      name: topics.name,
+      questionCount: sql<number>`coalesce(${questionStats.questionCount}, 0)`,
+      answeredCount: sql<number>`coalesce(${answerStats.answeredCount}, 0)`,
+      totalScore: sql<number>`coalesce(${answerStats.totalScore}, 0)`,
+    })
+    .from(topics)
+    .leftJoin(questionStats, eq(questionStats.topicId, topics.id))
+    .leftJoin(answerStats, eq(answerStats.topicId, topics.id))
+    .orderBy(asc(topics.id));
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    ...computeTopicProgress({
+      questionCount: row.questionCount,
+      answeredCount: row.answeredCount,
+      totalScore: row.totalScore,
+    }),
+  }));
 }
 
 export async function getExerciseData(topicId: number, userId: number) {

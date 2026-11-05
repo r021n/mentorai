@@ -10,9 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
+import { Route as FocusRouteImport } from './routes/_focus'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
-import { Route as DashboardEndExerciseRouteImport } from './routes/_dashboard/endExercise'
+import { Route as FocusEndExerciseRouteImport } from './routes/_focus/endExercise'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicSplatRouteImport } from './routes/_public/$'
 import { Route as PublicFaqRouteImport } from './routes/_public/faq'
@@ -21,14 +22,18 @@ import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as DashboardDatabaseAnswersRouteImport } from './routes/_dashboard/database/answers'
 import { Route as DashboardDatabaseUsersRouteImport } from './routes/_dashboard/database/users'
 import { Route as DashboardExerciseIndexRouteImport } from './routes/_dashboard/exercise/index'
-import { Route as DashboardExerciseTopicIdRouteImport } from './routes/_dashboard/exercise/$topicId'
 import { Route as DashboardMyAnswersTopicIdRouteImport } from './routes/_dashboard/myAnswers/$topicId'
 import { Route as DashboardStudentsAnswersTopicIdRouteImport } from './routes/_dashboard/studentsAnswers/$topicId'
 import { Route as DashboardTopicsIndexRouteImport } from './routes/_dashboard/topics/index'
+import { Route as FocusExerciseTopicIdRouteImport } from './routes/_focus/exercise/$topicId'
 import { Route as DashboardTopicsListTopicIdRouteImport } from './routes/_dashboard/topics/list/$topicId'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/_dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FocusRoute = FocusRouteImport.update({
+  id: '/_focus',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicRoute = PublicRouteImport.update({
@@ -40,10 +45,10 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardEndExerciseRoute = DashboardEndExerciseRouteImport.update({
+const FocusEndExerciseRoute = FocusEndExerciseRouteImport.update({
   id: '/endExercise',
   path: '/endExercise',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => FocusRoute,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
@@ -86,12 +91,6 @@ const DashboardExerciseIndexRoute = DashboardExerciseIndexRouteImport.update({
   path: '/exercise/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardExerciseTopicIdRoute =
-  DashboardExerciseTopicIdRouteImport.update({
-    id: '/exercise/$topicId',
-    path: '/exercise/$topicId',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 const DashboardMyAnswersTopicIdRoute =
   DashboardMyAnswersTopicIdRouteImport.update({
     id: '/myAnswers/$topicId',
@@ -109,6 +108,11 @@ const DashboardTopicsIndexRoute = DashboardTopicsIndexRouteImport.update({
   path: '/topics/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const FocusExerciseTopicIdRoute = FocusExerciseTopicIdRouteImport.update({
+  id: '/exercise/$topicId',
+  path: '/exercise/$topicId',
+  getParentRoute: () => FocusRoute,
+} as any)
 const DashboardTopicsListTopicIdRoute =
   DashboardTopicsListTopicIdRouteImport.update({
     id: '/topics/list/$topicId',
@@ -119,16 +123,16 @@ const DashboardTopicsListTopicIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardDashboardRoute
-  '/endExercise': typeof DashboardEndExerciseRoute
+  '/endExercise': typeof FocusEndExerciseRoute
   '/$': typeof PublicSplatRoute
   '/faq': typeof PublicFaqRoute
   '/login': typeof PublicLoginRoute
   '/register': typeof PublicRegisterRoute
   '/database/answers': typeof DashboardDatabaseAnswersRoute
   '/database/users': typeof DashboardDatabaseUsersRoute
-  '/exercise/$topicId': typeof DashboardExerciseTopicIdRoute
   '/myAnswers/$topicId': typeof DashboardMyAnswersTopicIdRoute
   '/studentsAnswers/$topicId': typeof DashboardStudentsAnswersTopicIdRoute
+  '/exercise/$topicId': typeof FocusExerciseTopicIdRoute
   '/exercise/': typeof DashboardExerciseIndexRoute
   '/topics/': typeof DashboardTopicsIndexRoute
   '/topics/list/$topicId': typeof DashboardTopicsListTopicIdRoute
@@ -136,16 +140,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardDashboardRoute
-  '/endExercise': typeof DashboardEndExerciseRoute
+  '/endExercise': typeof FocusEndExerciseRoute
   '/$': typeof PublicSplatRoute
   '/faq': typeof PublicFaqRoute
   '/login': typeof PublicLoginRoute
   '/register': typeof PublicRegisterRoute
   '/database/answers': typeof DashboardDatabaseAnswersRoute
   '/database/users': typeof DashboardDatabaseUsersRoute
-  '/exercise/$topicId': typeof DashboardExerciseTopicIdRoute
   '/myAnswers/$topicId': typeof DashboardMyAnswersTopicIdRoute
   '/studentsAnswers/$topicId': typeof DashboardStudentsAnswersTopicIdRoute
+  '/exercise/$topicId': typeof FocusExerciseTopicIdRoute
   '/exercise': typeof DashboardExerciseIndexRoute
   '/topics': typeof DashboardTopicsIndexRoute
   '/topics/list/$topicId': typeof DashboardTopicsListTopicIdRoute
@@ -153,9 +157,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_dashboard': typeof DashboardRouteWithChildren
+  '/_focus': typeof FocusRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
-  '/_dashboard/endExercise': typeof DashboardEndExerciseRoute
+  '/_focus/endExercise': typeof FocusEndExerciseRoute
   '/_public/$': typeof PublicSplatRoute
   '/_public/faq': typeof PublicFaqRoute
   '/_public/login': typeof PublicLoginRoute
@@ -163,9 +168,9 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_dashboard/database/answers': typeof DashboardDatabaseAnswersRoute
   '/_dashboard/database/users': typeof DashboardDatabaseUsersRoute
-  '/_dashboard/exercise/$topicId': typeof DashboardExerciseTopicIdRoute
   '/_dashboard/myAnswers/$topicId': typeof DashboardMyAnswersTopicIdRoute
   '/_dashboard/studentsAnswers/$topicId': typeof DashboardStudentsAnswersTopicIdRoute
+  '/_focus/exercise/$topicId': typeof FocusExerciseTopicIdRoute
   '/_dashboard/exercise/': typeof DashboardExerciseIndexRoute
   '/_dashboard/topics/': typeof DashboardTopicsIndexRoute
   '/_dashboard/topics/list/$topicId': typeof DashboardTopicsListTopicIdRoute
@@ -182,9 +187,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/database/answers'
     | '/database/users'
-    | '/exercise/$topicId'
     | '/myAnswers/$topicId'
     | '/studentsAnswers/$topicId'
+    | '/exercise/$topicId'
     | '/exercise/'
     | '/topics/'
     | '/topics/list/$topicId'
@@ -199,18 +204,19 @@ export interface FileRouteTypes {
     | '/register'
     | '/database/answers'
     | '/database/users'
-    | '/exercise/$topicId'
     | '/myAnswers/$topicId'
     | '/studentsAnswers/$topicId'
+    | '/exercise/$topicId'
     | '/exercise'
     | '/topics'
     | '/topics/list/$topicId'
   id:
     | '__root__'
     | '/_dashboard'
+    | '/_focus'
     | '/_public'
     | '/_dashboard/dashboard'
-    | '/_dashboard/endExercise'
+    | '/_focus/endExercise'
     | '/_public/$'
     | '/_public/faq'
     | '/_public/login'
@@ -218,9 +224,9 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_dashboard/database/answers'
     | '/_dashboard/database/users'
-    | '/_dashboard/exercise/$topicId'
     | '/_dashboard/myAnswers/$topicId'
     | '/_dashboard/studentsAnswers/$topicId'
+    | '/_focus/exercise/$topicId'
     | '/_dashboard/exercise/'
     | '/_dashboard/topics/'
     | '/_dashboard/topics/list/$topicId'
@@ -228,6 +234,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
+  FocusRoute: typeof FocusRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
 }
 
@@ -238,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_focus': {
+      id: '/_focus'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof FocusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_public': {
@@ -254,12 +268,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_dashboard/endExercise': {
-      id: '/_dashboard/endExercise'
+    '/_focus/endExercise': {
+      id: '/_focus/endExercise'
       path: '/endExercise'
       fullPath: '/endExercise'
-      preLoaderRoute: typeof DashboardEndExerciseRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof FocusEndExerciseRouteImport
+      parentRoute: typeof FocusRoute
     }
     '/_public/': {
       id: '/_public/'
@@ -317,13 +331,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardExerciseIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_dashboard/exercise/$topicId': {
-      id: '/_dashboard/exercise/$topicId'
-      path: '/exercise/$topicId'
-      fullPath: '/exercise/$topicId'
-      preLoaderRoute: typeof DashboardExerciseTopicIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/_dashboard/myAnswers/$topicId': {
       id: '/_dashboard/myAnswers/$topicId'
       path: '/myAnswers/$topicId'
@@ -345,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTopicsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_focus/exercise/$topicId': {
+      id: '/_focus/exercise/$topicId'
+      path: '/exercise/$topicId'
+      fullPath: '/exercise/$topicId'
+      preLoaderRoute: typeof FocusExerciseTopicIdRouteImport
+      parentRoute: typeof FocusRoute
+    }
     '/_dashboard/topics/list/$topicId': {
       id: '/_dashboard/topics/list/$topicId'
       path: '/topics/list/$topicId'
@@ -357,10 +371,8 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardDashboardRoute: typeof DashboardDashboardRoute
-  DashboardEndExerciseRoute: typeof DashboardEndExerciseRoute
   DashboardDatabaseAnswersRoute: typeof DashboardDatabaseAnswersRoute
   DashboardDatabaseUsersRoute: typeof DashboardDatabaseUsersRoute
-  DashboardExerciseTopicIdRoute: typeof DashboardExerciseTopicIdRoute
   DashboardMyAnswersTopicIdRoute: typeof DashboardMyAnswersTopicIdRoute
   DashboardStudentsAnswersTopicIdRoute: typeof DashboardStudentsAnswersTopicIdRoute
   DashboardExerciseIndexRoute: typeof DashboardExerciseIndexRoute
@@ -370,10 +382,8 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRoute: DashboardDashboardRoute,
-  DashboardEndExerciseRoute: DashboardEndExerciseRoute,
   DashboardDatabaseAnswersRoute: DashboardDatabaseAnswersRoute,
   DashboardDatabaseUsersRoute: DashboardDatabaseUsersRoute,
-  DashboardExerciseTopicIdRoute: DashboardExerciseTopicIdRoute,
   DashboardMyAnswersTopicIdRoute: DashboardMyAnswersTopicIdRoute,
   DashboardStudentsAnswersTopicIdRoute: DashboardStudentsAnswersTopicIdRoute,
   DashboardExerciseIndexRoute: DashboardExerciseIndexRoute,
@@ -384,6 +394,18 @@ const DashboardRouteChildren: DashboardRouteChildren = {
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
+
+interface FocusRouteChildren {
+  FocusEndExerciseRoute: typeof FocusEndExerciseRoute
+  FocusExerciseTopicIdRoute: typeof FocusExerciseTopicIdRoute
+}
+
+const FocusRouteChildren: FocusRouteChildren = {
+  FocusEndExerciseRoute: FocusEndExerciseRoute,
+  FocusExerciseTopicIdRoute: FocusExerciseTopicIdRoute,
+}
+
+const FocusRouteWithChildren = FocusRoute._addFileChildren(FocusRouteChildren)
 
 interface PublicRouteChildren {
   PublicSplatRoute: typeof PublicSplatRoute
@@ -406,6 +428,7 @@ const PublicRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
+  FocusRoute: FocusRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport

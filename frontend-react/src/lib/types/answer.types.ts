@@ -27,6 +27,7 @@ export interface MyAnswerItem {
 }
 
 export interface MyAnswersSummary {
+  topicId: number
   topic: { id: number; name: string }
   totalQuestions: number
   answeredQuestions: number

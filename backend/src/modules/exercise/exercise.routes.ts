@@ -9,9 +9,10 @@ const exerciseRoutes = new Hono();
 
 exerciseRoutes.use("*", authMiddleware);
 
-// GET /api/exercise/topics - List topics for exercise
+// GET /api/exercise/topics - List topics for exercise with current user's progress
 exerciseRoutes.get("/topics", async (c) => {
-  const topics = await exerciseService.getExerciseTopics();
+  const user = c.get("user");
+  const topics = await exerciseService.getExerciseTopics(user.id);
   return sendSuccess(c, topics);
 });
 

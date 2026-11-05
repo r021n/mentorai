@@ -42,12 +42,16 @@ export const createExerciseStore = () =>
       for (const ans of existingAnswers) {
         map[ans.questionId] = ans
       }
+
+      const firstUnansweredIndex = questions.findIndex((question) => !map[question.id]?.answer)
+      const resumeIndex = firstUnansweredIndex === -1 ? 0 : firstUnansweredIndex
+
       set({
         topicId: topic.id,
         topicName: topic.name,
         questions,
         answersMap: map,
-        currentIndex: 0,
+        currentIndex: resumeIndex,
         isSubmitting: false,
         isGeneratingFeedback: false,
         loadingText: '',
@@ -108,10 +112,16 @@ export const useExerciseStore = createExerciseStore()
 export const selectCurrentQuestion = (state: ExerciseStoreState): Question | null =>
   state.questions[state.currentIndex] ?? null
 
-export const selectProgressPercent = (state: ExerciseStoreState): number =>
-  state.questions.length > 0
-    ? ((state.currentIndex + 1) / state.questions.length) * 100
-    : 0
+export const selectAnsweredCount = (state: ExerciseStoreState): number =>
+  state.questions.reduce((count, question) => {
+    return state.answersMap[question.id]?.answer ? count + 1 : count
+  }, 0)
+
+export const selectUnansweredCount = (state: ExerciseStoreState): number =>
+  state.questions.length - selectAnsweredCount(state)
+
+export const selectAnsweredPercent = (state: ExerciseStoreState): number =>
+  state.questions.length > 0 ? (selectAnsweredCount(state) / state.questions.length) * 100 : 0
 
 export const selectIsFirstQuestion = (state: ExerciseStoreState): boolean =>
   state.currentIndex === 0

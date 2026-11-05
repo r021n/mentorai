@@ -1,19 +1,26 @@
 import { db } from "../../db/index.js";
-import { questions, answers } from "../../db/schema.js";
-import { eq, and, asc } from "drizzle-orm";
+import { topics, questions, answers } from "../../db/schema.js";
+import { eq, and, asc, sql } from "drizzle-orm";
+import { computeTopicProgress } from "../exercise/exercise.stats.js";
 
 export async function getStudentAnswersSummary(topicId: number, userId: number) {
-  // 1. Get all questions in topic to compute total possible score
-  const topicQuestions = await db
+  const topic = await db.query.topics.findFirst({
+    where: eq(topics.id, topicId),
+  });
+
+  if (!topic) {
+    return null;
+  }
+
+  // 1. Count questions without loading their full text.
+  const [questionStats] = await db
     .select({
-      id: questions.id,
-      question: questions.question,
+      totalQuestions: sql<number>`count(${questions.id})`,
     })
     .from(questions)
-    .where(eq(questions.topicId, topicId))
-    .orderBy(asc(questions.id));
+    .where(eq(questions.topicId, topicId));
 
-  // 2. Get student answers with question text
+  // 2. Get the student's answers with question text for the report table.
   const userAnswers = await db
     .select({
       id: answers.id,
@@ -29,15 +36,20 @@ export async function getStudentAnswersSummary(topicId: number, userId: number) 
     .orderBy(asc(answers.id));
 
   const totalScore = userAnswers.reduce((sum, item) => sum + (item.score || 0), 0);
-  const maxPossibleScore = topicQuestions.length * 3;
-  const percentageScore =
-    maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+  const progress = computeTopicProgress({
+    questionCount: Number(questionStats?.totalQuestions ?? 0),
+    answeredCount: userAnswers.length,
+    totalScore,
+  });
 
   return {
     topicId,
+    topic: { id: topic.id, name: topic.name },
+    totalQuestions: progress.questionCount,
+    answeredQuestions: progress.answeredCount,
     answers: userAnswers,
-    totalScore,
-    maxPossibleScore,
-    percentageScore,
+    totalScore: progress.totalScore,
+    maxPossibleScore: progress.maxPossibleScore,
+    scorePercentage: progress.scorePercentage,
   };
 }

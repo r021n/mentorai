@@ -70,7 +70,13 @@ describe("Exercise & My-Answers Integration Tests", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
     expect(body.success).toBe(true);
-    expect(body.data.some((t: any) => t.id === topicId)).toBe(true);
+
+    const topic = body.data.find((t: any) => t.id === topicId);
+    expect(topic.questionCount).toBe(1);
+    expect(topic.answeredCount).toBe(0);
+    expect(topic.maxPossibleScore).toBe(3);
+    expect(topic.scorePercentage).toBe(0);
+    expect(topic.status).toBe("not_started");
   });
 
   it("GET /api/exercise/:topicId - should return questions and current user answers", async () => {
@@ -139,6 +145,49 @@ describe("Exercise & My-Answers Integration Tests", () => {
     expect(body.message).toContain("Anda sudah menjawab soal ini");
   });
 
+  it("GET /api/exercise/topics - should reflect the current user's progress", async () => {
+    const res = await app.request("/api/exercise/topics", {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as any;
+    const topic = body.data.find((t: any) => t.id === topicId);
+
+    expect(topic.questionCount).toBe(1);
+    expect(topic.answeredCount).toBe(1);
+    expect(topic.status).toBe("completed");
+  });
+
+  it("GET /api/exercise/topics - should not count another user's answers", async () => {
+    await app.request("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: "siswa_isolated",
+        password: "123",
+        confirmPassword: "123",
+      }),
+    });
+
+    const login = await app.request("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: "siswa_isolated", password: "123" }),
+    });
+    const loginBody = (await login.json()) as any;
+    const isolatedToken = loginBody.data.token;
+
+    const res = await app.request("/api/exercise/topics", {
+      headers: { Authorization: `Bearer ${isolatedToken}` },
+    });
+    const body = (await res.json()) as any;
+    const topic = body.data.find((t: any) => t.id === topicId);
+
+    expect(topic.answeredCount).toBe(0);
+    expect(topic.status).toBe("not_started");
+  });
+
   it("GET /api/my-answers/:topicId - should retrieve answers history with score stats", async () => {
     const res = await app.request(`/api/my-answers/${topicId}`, {
       headers: { Authorization: `Bearer ${studentToken}` },
@@ -148,8 +197,12 @@ describe("Exercise & My-Answers Integration Tests", () => {
     const body = (await res.json()) as any;
     expect(body.success).toBe(true);
     expect(body.data.topicId).toBe(topicId);
+    expect(body.data.topic.name).toBe("Algoritma Pemrograman");
+    expect(body.data.totalQuestions).toBe(1);
+    expect(body.data.answeredQuestions).toBe(1);
     expect(body.data.answers.length).toBe(1);
     expect(body.data.answers[0].questionId).toBe(questionId);
     expect(body.data.maxPossibleScore).toBe(3);
+    expect(body.data.scorePercentage).toBe(0);
   });
 });

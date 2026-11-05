@@ -32,7 +32,7 @@ const highlights = [
   {
     icon: Zap,
     title: 'Tanggapan Cepat',
-    description: 'Animasi typewriter real-time',
+    description: 'Evaluasi AI langsung terbaca',
   },
 ]
 
