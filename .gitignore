@@ -27,3 +27,8 @@ dist/
 dist-ssr/
 coverage/
 *.log
+
+# AI Agent Workspaces & Skills
+.agent/
+.gemini/
+.opencode/
